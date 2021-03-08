@@ -1,0 +1,13 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netstandard2.0</TargetFramework>
+    <RootNamespace>TPUM.Client.ViewModel</RootNamespace>
+    <AssemblyName>ClientViewModel</AssemblyName>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\Shared\SharedViewModels\ViewModel.csproj" />
+  </ItemGroup>
+
+</Project>
