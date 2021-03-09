@@ -1,4 +1,4 @@
-﻿using TPUM.Model.Entities;
+﻿using TPUM.Shared.Model.Entities;
 
 namespace TPUM.Shared.ViewModel
 {

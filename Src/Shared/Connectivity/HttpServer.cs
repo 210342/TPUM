@@ -8,12 +8,12 @@ using System.Text;
 using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
-using TPUM.Connectivity.Core;
-using TPUM.Model;
-using TPUM.Model.Core;
-using TPUM.Model.Entities;
+using TPUM.Shared.Connectivity.Core;
+using TPUM.Shared.Model;
+using TPUM.Shared.Model.Core;
+using TPUM.Shared.Model.Entities;
 
-namespace TPUM.Connectivity
+namespace TPUM.Shared.Connectivity
 {
     public class HttpServer : NetworkNode, IObserver<Entity>
     {

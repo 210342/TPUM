@@ -2,10 +2,10 @@
 using System.Collections.Generic;
 using System.Text.Json;
 using System.Threading.Tasks;
-using TPUM.Model;
-using TPUM.Model.Entities;
+using TPUM.Shared.Model;
+using TPUM.Shared.Model.Entities;
 
-namespace TPUM.Connectivity
+namespace TPUM.Shared.Connectivity
 {
     public class HttpClient : IDisposable
     {

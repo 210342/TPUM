@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Threading.Tasks;
 
-namespace TPUM.Connectivity.Core
+namespace TPUM.Shared.Connectivity.Core
 {
     public interface INetworkNode : IDisposable
     {

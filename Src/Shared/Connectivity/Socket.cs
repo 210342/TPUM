@@ -5,11 +5,11 @@ using System.Net.WebSockets;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
-using TPUM.Connectivity.Core;
-using TPUM.Model;
-using TPUM.Model.Core;
+using TPUM.Shared.Connectivity.Core;
+using TPUM.Shared.Model;
+using TPUM.Shared.Model.Core;
 
-namespace TPUM.Connectivity
+namespace TPUM.Shared.Connectivity
 {
     public class Socket : NetworkNode
     {

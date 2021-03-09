@@ -3,7 +3,7 @@ using System.Linq;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 
-namespace TPUM.Model.Core
+namespace TPUM.Shared.Model.Core
 {
     public class NetworkEntity
     {

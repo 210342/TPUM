@@ -1,7 +1,7 @@
 ﻿using AsyncAwaitBestPractices.MVVM;
 using System;
 using System.Threading.Tasks;
-using TPUM.Connectivity;
+using TPUM.Shared.Connectivity;
 using TPUM.Shared.ViewModel;
 
 namespace TPUM.Client.ViewModel

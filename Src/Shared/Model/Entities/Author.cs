@@ -1,9 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Runtime.InteropServices;
-using TPUM.Model.Core;
+using TPUM.Shared.Model.Core;
 
-namespace TPUM.Model.Entities
+namespace TPUM.Shared.Model.Entities
 {
     [Guid("EB2E9E9F-C340-4244-BC2D-4B9531AEF2DA")]
     public class Author : Entity

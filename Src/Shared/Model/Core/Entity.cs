@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Runtime.InteropServices;
 
-namespace TPUM.Model.Core
+namespace TPUM.Shared.Model.Core
 {
     [Guid("ABE70968-E4A3-4349-9CE3-FDCD529F0081")]
     public class Entity

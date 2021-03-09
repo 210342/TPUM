@@ -2,7 +2,7 @@
 using System.Collections;
 using System.Collections.Generic;
 
-namespace TPUM.Model
+namespace TPUM.Shared.Model
 {
     public abstract class Observable<T> : IObservable<T>, IDisposable
     {
