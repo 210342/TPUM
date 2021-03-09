@@ -2,7 +2,7 @@
 using TPUM.Shared.Model.Core;
 using Xunit;
 
-namespace ModelTests.Core
+namespace TPUM.Shared.ModelTests.Core
 {
     public class EntityTest
     {
@@ -16,7 +16,7 @@ namespace ModelTests.Core
 
         public void EmptyConstructorTest()
         {
-            Entity entity = new Entity();
+            Entity entity = new();
             Assert.Equal(0, entity.Id);
         }
 
@@ -38,9 +38,9 @@ namespace ModelTests.Core
         [Fact]
         public void EqualsTest()
         {
-            Entity entity1 = new Entity { Id = 0 };
-            Entity entity2 = new Entity { Id = 1 };
-            Entity entity3 = new Entity { Id = 0 };
+            Entity entity1 = new() { Id = 0 };
+            Entity entity2 = new() { Id = 1 };
+            Entity entity3 = new() { Id = 0 };
             Assert.False(entity1.Equals(entity2));
             Assert.True(entity1.Equals(entity3));
             Assert.False(entity1 == entity3);
@@ -49,9 +49,9 @@ namespace ModelTests.Core
         [Fact]
         public void GetHashCodeTest()
         {
-            Entity entity1 = new Entity { Id = 0 };
-            Entity entity2 = new Entity { Id = 1 };
-            Entity entity3 = new Entity { Id = 0 };
+            Entity entity1 = new() { Id = 0 };
+            Entity entity2 = new() { Id = 1 };
+            Entity entity3 = new() { Id = 0 };
             Assert.NotEqual(entity1.GetHashCode(), entity2.GetHashCode());
             Assert.Equal(entity1.GetHashCode(), entity3.GetHashCode());
         }

@@ -1,17 +1,15 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Text;
 using TPUM.Shared.Model.Core;
 using Xunit;
 
-namespace ModelTests.Core
+namespace TPUM.Shared.ModelTests.Core
 {
     public class NetworkEntityTest
     {
         [Fact]
         public void DefaultConstructorTest()
         {
-            NetworkEntity entity = new NetworkEntity();
+            NetworkEntity entity = new();
             Assert.Equal(default, entity.TypeIdentifier);
             Assert.Equal(default, entity.Source);
             Assert.Null(entity.Entity);
@@ -21,7 +19,7 @@ namespace ModelTests.Core
         public void TypeIdentifierTest()
         {
             Guid guid = Guid.Parse("21271A5A-5C0F-429D-944C-FBCD9E696E30");
-            NetworkEntity entity = new NetworkEntity()
+            NetworkEntity entity = new()
             {
                 TypeIdentifier = guid
             };
@@ -31,8 +29,8 @@ namespace ModelTests.Core
         [Fact]
         public void SourceTest()
         {
-            Uri source = new Uri("https://example.com/foo/bar");
-            NetworkEntity entity = new NetworkEntity()
+            Uri source = new("https://example.com/foo/bar");
+            NetworkEntity entity = new()
             {
                 Source = source
             };
@@ -42,11 +40,11 @@ namespace ModelTests.Core
         [Fact]
         public void EntityTest()
         {
-            Entity entity = new Entity()
+            Entity entity = new()
             {
                 Id = 0
             };
-            NetworkEntity networkEntity = new NetworkEntity()
+            NetworkEntity networkEntity = new()
             {
                 Entity = entity
             };
@@ -56,44 +54,44 @@ namespace ModelTests.Core
         [Fact]
         public void EqualsTest()
         {
-            Uri source1 = new Uri("https://example.com/foo/bar");
-            Uri source2 = new Uri("https://example.com/bar/foo");
+            Uri source1 = new("https://example.com/foo/bar");
+            Uri source2 = new("https://example.com/bar/foo");
             Guid typeIdentifier1 = Guid.Parse("21271A5A-5C0F-429D-944C-FBCD9E696E30");
             Guid typeIdentifier2 = Guid.Parse("E69E5FC8-B157-4261-88BC-492558F352C1");
             object entity1 = new Entity() { Id = 0 };
             object entity2 = new Entity() { Id = 1 };
             object entity3 = null;
-            NetworkEntity networkEntity111 = new NetworkEntity 
+            NetworkEntity networkEntity111 = new()
             { 
                 Source = source1,
                 TypeIdentifier = typeIdentifier1,
                 Entity = entity1
             };
-            NetworkEntity networkEntity112 = new NetworkEntity
+            NetworkEntity networkEntity112 = new()
             {
                 Source = source1,
                 TypeIdentifier = typeIdentifier1,
                 Entity = entity2
             };
-            NetworkEntity networkEntity113 = new NetworkEntity
+            NetworkEntity networkEntity113 = new()
             {
                 Source = source1,
                 TypeIdentifier = typeIdentifier1,
                 Entity = entity3
             };
-            NetworkEntity networkEntity121 = new NetworkEntity
+            NetworkEntity networkEntity121 = new()
             {
                 Source = source1,
                 TypeIdentifier = typeIdentifier2,
                 Entity = entity1
             };
-            NetworkEntity networkEntity211 = new NetworkEntity
+            NetworkEntity networkEntity211 = new()
             {
                 Source = source2,
                 TypeIdentifier = typeIdentifier1,
                 Entity = entity1
             };
-            NetworkEntity networkEntity111_clone = new NetworkEntity
+            NetworkEntity networkEntity111_clone = new()
             {
                 Source = source1,
                 TypeIdentifier = typeIdentifier1,
@@ -123,19 +121,19 @@ namespace ModelTests.Core
         [Fact]
         public void GetHashCodeTest()
         {
-            Uri source1 = new Uri("https://example.com/foo/bar");
-            Uri source2 = new Uri("https://example.com/bar/foo");
+            Uri source1 = new("https://example.com/foo/bar");
+            Uri source2 = new("https://example.com/bar/foo");
             Guid typeIdentifier1 = Guid.Parse("21271A5A-5C0F-429D-944C-FBCD9E696E30");
             Guid typeIdentifier2 = Guid.Parse("E69E5FC8-B157-4261-88BC-492558F352C1");
             object entity1 = new Entity() { Id = 0 };
             object entity2 = new Entity() { Id = 1 };
-            NetworkEntity networkEntity1 = new NetworkEntity
+            NetworkEntity networkEntity1 = new()
             {
                 Source = source1,
                 TypeIdentifier = typeIdentifier1,
                 Entity = entity1
             };
-            NetworkEntity networkEntity2 = new NetworkEntity
+            NetworkEntity networkEntity2 = new()
             {
                 Source = source1,
                 TypeIdentifier = typeIdentifier1,

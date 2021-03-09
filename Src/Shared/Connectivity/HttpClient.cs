@@ -23,7 +23,7 @@ namespace TPUM.Shared.Connectivity
 
         public async Task<List<Book>> GetBooksAsync()
         {
-            var response = await _httpClient.GetAsync($"{ServerUrl}books");
+            System.Net.Http.HttpResponseMessage response = await _httpClient.GetAsync($"{ServerUrl}books");
             if (response.StatusCode == System.Net.HttpStatusCode.OK)
             {
                 return JsonSerializer.Deserialize<List<Book>>(await response.Content.ReadAsStringAsync());
@@ -33,7 +33,7 @@ namespace TPUM.Shared.Connectivity
 
         public async Task<List<Author>> GetAuthorsAsync()
         {
-            var response = await _httpClient.GetAsync($"{ServerUrl}authors");
+            System.Net.Http.HttpResponseMessage response = await _httpClient.GetAsync($"{ServerUrl}authors");
             if (response.StatusCode == System.Net.HttpStatusCode.OK)
             {
                 return JsonSerializer.Deserialize<List<Author>>(await response.Content.ReadAsStringAsync());

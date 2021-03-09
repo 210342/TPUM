@@ -90,23 +90,23 @@ namespace TPUM.Shared.Connectivity
             {
                 if (token.IsCancellationRequested)
                 {
-                    var tuple = _webSocketSubscribers.FirstOrDefault(t => t.context.Equals(context.SecWebSocketKey));
+                    (Thread thread, HttpListenerWebSocketContext context) tuple = _webSocketSubscribers.FirstOrDefault(t => t.context.Equals(context.SecWebSocketKey));
                     _webSocketSubscribers.Remove(tuple);
                     await context.WebSocket.CloseAsync(WebSocketCloseStatus.NormalClosure, string.Empty, token).ConfigureAwait(false);
                     return;
                 }
                 try
                 {
-                    var response = await context.WebSocket.ReceiveAsync(buffer, token).ConfigureAwait(false);
+                    WebSocketReceiveResult response = await context.WebSocket.ReceiveAsync(buffer, token).ConfigureAwait(false);
                     if (response.MessageType == WebSocketMessageType.Close)
                     {
-                        var tuple = _webSocketSubscribers.FirstOrDefault(t => t.context.Equals(context.SecWebSocketKey));
+                        (Thread thread, HttpListenerWebSocketContext context) tuple = _webSocketSubscribers.FirstOrDefault(t => t.context.Equals(context.SecWebSocketKey));
                         _webSocketSubscribers.Remove(tuple);
                     }
                 }
                 catch (WebSocketException ex)
                 {
-                    var tuple = _webSocketSubscribers.FirstOrDefault(t => t.context.Equals(context.SecWebSocketKey));
+                    (Thread thread, HttpListenerWebSocketContext context) tuple = _webSocketSubscribers.FirstOrDefault(t => t.context.Equals(context.SecWebSocketKey));
                     _webSocketSubscribers.Remove(tuple);
                     if (context.WebSocket?.State == WebSocketState.Open)
                     {

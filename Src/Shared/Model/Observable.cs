@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections;
 using System.Collections.Generic;
 
 namespace TPUM.Shared.Model
@@ -63,6 +62,7 @@ namespace TPUM.Shared.Model
                 if (disposing)
                 {
                     EntityChanged = null;
+                    EntitiesChanged = null;
                 }
 
                 // TODO: free unmanaged resources (unmanaged objects) and override finalizer

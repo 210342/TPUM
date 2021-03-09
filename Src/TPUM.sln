@@ -19,7 +19,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ViewModel", "Shared\SharedV
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Shared", "Shared", "{F2506890-7AE2-42A0-B028-A9943F20B91A}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ModelTests", "Shared\ModelTests\ModelTests.csproj", "{5741A638-0D27-4F7E-A581-1B3022FBE22A}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ModelTests", "Shared\ModelTests\ModelTests.csproj", "{5741A638-0D27-4F7E-A581-1B3022FBE22A}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
