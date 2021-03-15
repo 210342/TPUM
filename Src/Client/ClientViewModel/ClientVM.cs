@@ -1,7 +1,9 @@
 ﻿using AsyncAwaitBestPractices.MVVM;
 using System;
+using System.Text;
 using System.Threading.Tasks;
 using TPUM.Shared.Connectivity;
+using TPUM.Shared.Model.Core;
 using TPUM.Shared.ViewModel;
 
 namespace TPUM.Client.ViewModel
@@ -25,7 +27,7 @@ namespace TPUM.Client.ViewModel
             {
                 await Task.CompletedTask;
             }
-            _socket = new Socket(url, _repository);
+            _socket = new Socket(url, Format.JSON, Encoding.Default, _repository);
             await _socket.Start();
             OnPropertyChanged(nameof(CanDisconnect));
             OnPropertyChanged(nameof(CanConnect));

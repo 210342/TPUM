@@ -9,7 +9,7 @@ using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
 using TPUM.Shared.Connectivity.Core;
-using TPUM.Shared.Model;
+using TPUM.Shared.Core.Model;
 using TPUM.Shared.Model.Core;
 using TPUM.Shared.Model.Entities;
 
@@ -26,7 +26,9 @@ namespace TPUM.Shared.Connectivity
         public Uri BaseUri { get; }
         public bool IsListening => _httpListener?.IsListening ?? false;
 
-        public HttpServer(Uri url, IRepository repository)
+        public HttpServer(Uri url, IRepository repository) : this(url, repository, Format.JSON, Encoding.UTF8) { }
+
+        public HttpServer(Uri url, IRepository repository, Format format, Encoding encoding) : base(format, encoding)
         {
             _repository = repository;
             _dataContextSubscription = _repository.Subscribe(this);
@@ -151,7 +153,7 @@ namespace TPUM.Shared.Connectivity
 
         private IEnumerable<(Memory<byte> chunk, bool last)> SplitObjectIntoBufferSizedChunks(NetworkEntity entity)
         {
-            byte[] fullArray = Encoding.UTF8.GetBytes(entity.Serialize());
+            byte[] fullArray = entity.Serialize(Serializer);
             int chunksCount = (int)Math.Ceiling((decimal)fullArray.Length / _bufferSize);
             byte[] appendedArray = new byte[chunksCount * _bufferSize];
             Memory<byte> memory = appendedArray.AsMemory();

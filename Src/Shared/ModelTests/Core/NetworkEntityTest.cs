@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Text;
+using TPUM.Shared.Model;
 using TPUM.Shared.Model.Core;
 using Xunit;
 
@@ -150,6 +152,25 @@ namespace TPUM.Shared.ModelTests.Core
             Assert.NotEqual(networkEntity1.GetHashCode(), networkEntity2.GetHashCode());
             networkEntity1.TypeIdentifier = typeIdentifier2;
             Assert.Equal(networkEntity1.GetHashCode(), networkEntity2.GetHashCode());
+        }
+
+        [Fact]
+        public void SerializationTest()
+        {
+            Uri source = new("https://example.com/foo/bar");
+            Guid typeIdentifier = Guid.Parse("21271A5A-5C0F-429D-944C-FBCD9E696E30");
+            object entity = new Entity() { Id = 0 };
+            NetworkEntity networkEntity = new()
+            {
+                Source = source,
+                TypeIdentifier = typeIdentifier,
+                Entity = entity
+            };
+            Serializer<NetworkEntity> serializer = new(Encoding.Unicode, Format.JSON);
+            byte[] bytes = networkEntity.Serialize(serializer);
+            NetworkEntity copy = NetworkEntity.Deserialize(bytes, serializer);
+            Assert.Equal(networkEntity, copy);
+            Assert.NotSame(networkEntity, copy);
         }
     }
 }
