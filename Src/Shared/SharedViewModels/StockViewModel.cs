@@ -1,9 +1,9 @@
 ﻿using System;
 using System.Collections.ObjectModel;
 using System.Linq;
-using TPUM.Model;
-using TPUM.Model.Core;
-using TPUM.Model.Entities;
+using TPUM.Shared.Model;
+using TPUM.Shared.Model.Core;
+using TPUM.Shared.Model.Entities;
 
 namespace TPUM.Shared.ViewModel
 {

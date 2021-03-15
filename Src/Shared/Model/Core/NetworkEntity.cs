@@ -1,9 +1,10 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 
-namespace TPUM.Model.Core
+namespace TPUM.Shared.Model.Core
 {
     public class NetworkEntity
     {
@@ -36,6 +37,23 @@ namespace TPUM.Model.Core
             JsonElement jsonValue = JsonDocument.Parse(sourceJson).RootElement.GetProperty(nameof(Entity));
             Entity = JsonSerializer.Deserialize(jsonValue.GetRawText(), type);
             return this;
+        }
+
+        public override bool Equals(object obj)
+        {
+            return obj is NetworkEntity entity &&
+                   EqualityComparer<Uri>.Default.Equals(Source, entity.Source) &&
+                   TypeIdentifier.Equals(entity.TypeIdentifier) &&
+                   EqualityComparer<object>.Default.Equals(Entity, entity.Entity);
+        }
+
+        public override int GetHashCode()
+        {
+            int hashCode = 2103276648;
+            hashCode = hashCode * -1521134295 + EqualityComparer<Uri>.Default.GetHashCode(Source);
+            hashCode = hashCode * -1521134295 + TypeIdentifier.GetHashCode();
+            hashCode = hashCode * -1521134295 + EqualityComparer<object>.Default.GetHashCode(Entity);
+            return hashCode;
         }
     }
 }

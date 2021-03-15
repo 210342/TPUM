@@ -2,10 +2,10 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using TPUM.Model.Core;
-using TPUM.Model.Entities;
+using TPUM.Shared.Model.Core;
+using TPUM.Shared.Model.Entities;
 
-namespace TPUM.Model
+namespace TPUM.Shared.Model
 {
     public class Repository : Observable<Entity>, IRepository, IObserver<Entity>
     {

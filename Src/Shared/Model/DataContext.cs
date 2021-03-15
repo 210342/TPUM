@@ -1,12 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Collections.Specialized;
 using System.Linq;
-using TPUM.Model.Core;
-using TPUM.Model.Entities;
+using TPUM.Shared.Model.Core;
+using TPUM.Shared.Model.Entities;
 
-namespace TPUM.Model
+namespace TPUM.Shared.Model
 {
     public class DataContext : Observable<Entity>
     {

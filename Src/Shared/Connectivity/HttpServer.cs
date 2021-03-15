@@ -8,12 +8,12 @@ using System.Text;
 using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
-using TPUM.Connectivity.Core;
-using TPUM.Model;
-using TPUM.Model.Core;
-using TPUM.Model.Entities;
+using TPUM.Shared.Connectivity.Core;
+using TPUM.Shared.Model;
+using TPUM.Shared.Model.Core;
+using TPUM.Shared.Model.Entities;
 
-namespace TPUM.Connectivity
+namespace TPUM.Shared.Connectivity
 {
     public class HttpServer : NetworkNode, IObserver<Entity>
     {
@@ -90,23 +90,23 @@ namespace TPUM.Connectivity
             {
                 if (token.IsCancellationRequested)
                 {
-                    var tuple = _webSocketSubscribers.FirstOrDefault(t => t.context.Equals(context.SecWebSocketKey));
+                    (Thread thread, HttpListenerWebSocketContext context) tuple = _webSocketSubscribers.FirstOrDefault(t => t.context.Equals(context.SecWebSocketKey));
                     _webSocketSubscribers.Remove(tuple);
                     await context.WebSocket.CloseAsync(WebSocketCloseStatus.NormalClosure, string.Empty, token).ConfigureAwait(false);
                     return;
                 }
                 try
                 {
-                    var response = await context.WebSocket.ReceiveAsync(buffer, token).ConfigureAwait(false);
+                    WebSocketReceiveResult response = await context.WebSocket.ReceiveAsync(buffer, token).ConfigureAwait(false);
                     if (response.MessageType == WebSocketMessageType.Close)
                     {
-                        var tuple = _webSocketSubscribers.FirstOrDefault(t => t.context.Equals(context.SecWebSocketKey));
+                        (Thread thread, HttpListenerWebSocketContext context) tuple = _webSocketSubscribers.FirstOrDefault(t => t.context.Equals(context.SecWebSocketKey));
                         _webSocketSubscribers.Remove(tuple);
                     }
                 }
                 catch (WebSocketException ex)
                 {
-                    var tuple = _webSocketSubscribers.FirstOrDefault(t => t.context.Equals(context.SecWebSocketKey));
+                    (Thread thread, HttpListenerWebSocketContext context) tuple = _webSocketSubscribers.FirstOrDefault(t => t.context.Equals(context.SecWebSocketKey));
                     _webSocketSubscribers.Remove(tuple);
                     if (context.WebSocket?.State == WebSocketState.Open)
                     {

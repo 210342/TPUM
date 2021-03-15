@@ -1,8 +1,7 @@
 ﻿using System;
-using System.Collections;
 using System.Collections.Generic;
 
-namespace TPUM.Model
+namespace TPUM.Shared.Model
 {
     public abstract class Observable<T> : IObservable<T>, IDisposable
     {
@@ -63,6 +62,7 @@ namespace TPUM.Model
                 if (disposing)
                 {
                     EntityChanged = null;
+                    EntitiesChanged = null;
                 }
 
                 // TODO: free unmanaged resources (unmanaged objects) and override finalizer

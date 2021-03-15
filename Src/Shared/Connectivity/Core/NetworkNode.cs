@@ -1,10 +1,10 @@
 ﻿using System;
 using System.Threading;
 using System.Threading.Tasks;
-using TPUM.Model;
-using TPUM.Model.Core;
+using TPUM.Shared.Model;
+using TPUM.Shared.Model.Core;
 
-namespace TPUM.Connectivity.Core
+namespace TPUM.Shared.Connectivity.Core
 {
     public abstract class NetworkNode : Observable<NetworkEntity>, INetworkNode
     {
