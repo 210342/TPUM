@@ -1,9 +1,9 @@
 ﻿using Moq;
 using System;
 using System.Text;
-using TPUM.Shared.Model.Formatters;
 using TPUM.Shared.Model;
 using TPUM.Shared.Model.Core;
+using TPUM.Shared.Model.Formatters;
 using Xunit;
 
 namespace TPUM.Shared.ModelTests

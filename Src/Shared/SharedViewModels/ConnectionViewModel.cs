@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Windows.Input;
-using TPUM.Shared.Core.Model;
 using TPUM.Shared.Model;
+using TPUM.Shared.Model.Core;
 
 namespace TPUM.Shared.ViewModel
 {

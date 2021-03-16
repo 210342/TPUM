@@ -9,7 +9,6 @@ using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
 using TPUM.Shared.Connectivity.Core;
-using TPUM.Shared.Core.Model;
 using TPUM.Shared.Model.Core;
 using TPUM.Shared.Model.Entities;
 

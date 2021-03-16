@@ -5,7 +5,6 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using TPUM.Shared.Connectivity.Core;
-using TPUM.Shared.Core.Model;
 using TPUM.Shared.Model.Core;
 
 namespace TPUM.Shared.Connectivity

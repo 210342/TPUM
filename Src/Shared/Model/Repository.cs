@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using TPUM.Shared.Core.Model;
 using TPUM.Shared.Model.Core;
 using TPUM.Shared.Model.Entities;
 
