@@ -4,6 +4,7 @@ using System.Linq;
 using System.Runtime.Serialization;
 using System.Text;
 using System.Text.Json.Serialization;
+using YamlDotNet.Serialization;
 
 namespace TPUM.Shared.Model.Core
 {
@@ -14,10 +15,12 @@ namespace TPUM.Shared.Model.Core
 
         #region Data properties
         [DataMember]
+        [YamlMember(typeof(string))]
         public Uri Source { get; set; }
         [DataMember]
         public Guid TypeIdentifier { get; set; }
         [JsonIgnore]
+        [YamlIgnore]
         public object Entity { get; set; }
 
         #endregion

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Text;
 using TPUM.Shared.Model;
 using TPUM.Shared.Model.Core;
@@ -8,6 +9,22 @@ namespace TPUM.Shared.ModelTests.Core
 {
     public class NetworkEntityTest
     {
+        public static IEnumerable<object[]> SerializationParameters()
+        {
+            yield return new object[] { Format.JSON, Encoding.Unicode };
+            yield return new object[] { Format.JSON, Encoding.UTF8 };
+            yield return new object[] { Format.JSON, Encoding.UTF32 };
+            yield return new object[] { Format.JSON, Encoding.ASCII };
+            yield return new object[] { Format.XML, Encoding.Unicode };
+            yield return new object[] { Format.XML, Encoding.UTF8 };
+            yield return new object[] { Format.XML, Encoding.UTF32 };
+            yield return new object[] { Format.XML, Encoding.ASCII };
+            yield return new object[] { Format.YAML, Encoding.Unicode };
+            yield return new object[] { Format.YAML, Encoding.UTF8 };
+            yield return new object[] { Format.YAML, Encoding.UTF32 };
+            yield return new object[] { Format.YAML, Encoding.ASCII };
+        }
+
         [Fact]
         public void DefaultConstructorTest()
         {
@@ -154,8 +171,9 @@ namespace TPUM.Shared.ModelTests.Core
             Assert.Equal(networkEntity1.GetHashCode(), networkEntity2.GetHashCode());
         }
 
-        [Fact]
-        public void SerializationTest()
+        [Theory]
+        [MemberData(nameof(SerializationParameters))]
+        public void SerializationTest(Format format, Encoding encoding)
         {
             Uri source = new("https://example.com/foo/bar");
             Guid typeIdentifier = Guid.Parse("21271A5A-5C0F-429D-944C-FBCD9E696E30");
@@ -166,7 +184,7 @@ namespace TPUM.Shared.ModelTests.Core
                 TypeIdentifier = typeIdentifier,
                 Entity = entity
             };
-            Serializer<NetworkEntity> serializer = new(Encoding.Unicode, Format.JSON);
+            Serializer<NetworkEntity> serializer = new(encoding, format);
             byte[] bytes = networkEntity.Serialize(serializer);
             NetworkEntity copy = NetworkEntity.Deserialize(bytes, serializer);
             Assert.Equal(networkEntity, copy);
