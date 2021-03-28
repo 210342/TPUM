@@ -1,16 +1,23 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Runtime.InteropServices;
+using System.Runtime.Serialization;
 using TPUM.Shared.Model.Core;
 
 namespace TPUM.Shared.Model.Entities
 {
     [Guid("EB2E9E9F-C340-4244-BC2D-4B9531AEF2DA")]
+    [DataContract(IsReference = true)]
     public class Author : Entity
     {
+        [DataMember]
         public string FirstName { get; set; }
+        [DataMember]
         public string LastName { get; set; }
+        [DataMember]
         public string NickName { get; set; }
+        [DataMember]
         public List<Book> Books { get; set; } = new List<Book>();
 
         public override bool Equals(object obj)
@@ -21,7 +28,7 @@ namespace TPUM.Shared.Model.Entities
                    FirstName == author.FirstName &&
                    LastName == author.LastName &&
                    NickName == author.NickName &&
-                   EqualityComparer<List<Book>>.Default.Equals(Books, author.Books);
+                   Enumerable.SequenceEqual(Books, author.Books, new EntityComparer());
         }
 
         public override int GetHashCode()

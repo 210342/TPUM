@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using TPUM.Shared.Model.Core;
@@ -17,6 +18,8 @@ namespace TPUM.Shared.Model
             Encoding = encoding ?? throw new ArgumentNullException(nameof(encoding));
             Formatter = FormatterFactory.CreateFormatter<T>(format);
         }
+
+        public Serializer(Encoding encoding, Format format, IEnumerable<Type> knownTypes) : this(encoding, FormatterFactory.CreateFormatter<T>(format, knownTypes)) { }
 
         public Serializer(Encoding encoding, IFormatter<T> formatter)
         {

@@ -1,9 +1,9 @@
-﻿using System;
+﻿using Newtonsoft.Json;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.Serialization;
 using System.Text;
-using System.Text.Json.Serialization;
 using YamlDotNet.Serialization;
 
 namespace TPUM.Shared.Model.Core
@@ -14,6 +14,7 @@ namespace TPUM.Shared.Model.Core
         private const byte ENTITY_ASCII_SEPARATOR = 0x1E;
 
         #region Data properties
+
         [DataMember]
         [YamlMember(typeof(string))]
         public Uri Source { get; set; }
@@ -25,10 +26,14 @@ namespace TPUM.Shared.Model.Core
 
         #endregion
 
-        #region Logic properties
+        #region Serialization support
 
         [JsonIgnore]
+        [YamlIgnore]
         public ExtensionDataObject ExtensionData { get; set; }
+        [YamlIgnore]
+        [JsonExtensionData]
+        public Dictionary<string, object> JsonExtensionData { get; set; }
 
         #endregion
 
@@ -43,11 +48,11 @@ namespace TPUM.Shared.Model.Core
         public static NetworkEntity Deserialize(byte[] source, ISerializer<NetworkEntity> serializer)
         {
             ISerializer<Entity> entitySerializer = new Serializer<Entity>(serializer.Encoding, serializer.Formatter.Format);
-            (int Start, int End) entitySeparatorRange = GetEntitySeparatorRange(source, serializer);
-            Span<byte> entityBytes = source.AsSpan(entitySeparatorRange.End, source.Length - entitySeparatorRange.End);
-            Span<byte> networkEntityBytes = source.AsSpan(0, entitySeparatorRange.Start == -1 ? source.Length : entitySeparatorRange.Start);
+            (int separatorStartIndex, int separatorEndIndex) = GetEntitySeparatorRange(source, serializer);
+            Span<byte> entityBytes = source.AsSpan(separatorEndIndex, source.Length - separatorEndIndex);
+            Span<byte> networkEntityBytes = source.AsSpan(0, separatorStartIndex == -1 ? source.Length : separatorStartIndex);
             NetworkEntity entity = serializer.Deserialize(networkEntityBytes.ToArray());
-            if (entitySeparatorRange.Start != -1)
+            if (separatorStartIndex != -1)
             {
                 entity.Entity = entitySerializer.Deserialize(entityBytes.ToArray());
             }

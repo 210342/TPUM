@@ -76,9 +76,7 @@ Foo: Bar
                 Count = 3
             };
             YamlFormatter<TestEntity> sut_base = new();
-            ArgumentException exception = Assert.Throws<ArgumentException>(() => sut_base.FormatObject(entity));
-            Assert.NotNull(exception.InnerException);
-            Assert.IsType<YamlException>(exception.InnerException);
+            Assert.Throws<YamlException>(() => sut_base.FormatObject(entity));
             YamlFormatter<TestEntity> sut_base2 = new(new[] { typeof(TestEntity), typeof(DerivedTestEntity) });
             string yaml = sut_base2.FormatObject(entity);
             Assert.NotNull(yaml);
@@ -126,9 +124,7 @@ Id: 1
 Foo: BarBar
 ";
             YamlFormatter<TestEntity> sut_base = new();
-            ArgumentException exception = Assert.Throws<ArgumentException>(() => sut_base.Deformat(yaml));
-            Assert.NotNull(exception.InnerException);
-            Assert.IsType<YamlException>(exception.InnerException);
+            Assert.Throws<YamlException>(() => sut_base.Deformat(yaml));
             YamlFormatter<DerivedTestEntity> sut_derived = new();
             TestEntity result = sut_derived.Deformat(yaml);
             Assert.NotNull(result);

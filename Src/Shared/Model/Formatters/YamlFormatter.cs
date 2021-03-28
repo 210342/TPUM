@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using TPUM.Shared.Model.Core;
-using YamlDotNet.Core;
 using YamlDotNet.Serialization;
 using YamlDotNet.Serialization.NamingConventions;
 
@@ -19,12 +18,13 @@ namespace TPUM.Shared.Model.Formatters
         public YamlFormatter(IEnumerable<Type> knownTypes) : base(knownTypes)
         {
             SerializerBuilder serializerBuilder = new SerializerBuilder()
-               .WithNamingConvention(PascalCaseNamingConvention.Instance)
-               .IgnoreFields()
-               .EnsureRoundtrip();
+                .WithNamingConvention(PascalCaseNamingConvention.Instance)
+                .EnsureRoundtrip()
+                .IgnoreFields();
             DeserializerBuilder deserializerBuilder = new DeserializerBuilder()
-                 .WithNamingConvention(PascalCaseNamingConvention.Instance)
-                 .IgnoreFields();
+                .WithNamingConvention(PascalCaseNamingConvention.Instance)
+                .IgnoreUnmatchedProperties()
+                .IgnoreFields();
             foreach (Type type in KnownTypes)
             {
                 serializerBuilder = serializerBuilder.WithTagMapping($"!{type.FullName}", type);
@@ -36,26 +36,12 @@ namespace TPUM.Shared.Model.Formatters
 
         public override string FormatObject(T obj)
         {
-            try
-            {
-                return _serializer.Serialize(obj);
-            }
-            catch (YamlException ex)
-            {
-                throw new ArgumentException($"Unregistered object type, serializer expected: {typeof(T).FullName}", obj.GetType().FullName, ex);
-            }
+            return _serializer.Serialize(obj);
         }
 
         public override T Deformat(string str)
         {
-            try
-            {
-                return _deserializer.Deserialize<T>(str);
-            }
-            catch (YamlException ex)
-            {
-                throw new ArgumentException($"Unregistered object type, serializer expected: {typeof(T).FullName}", ex);
-            }
+            return _deserializer.Deserialize<T>(str);
         }
     }
 }

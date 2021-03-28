@@ -17,14 +17,15 @@ namespace TPUM.Shared.ModelTests.Formatters
             string json = sut.FormatObject(entity);
             Assert.NotNull(json);
             Assert.NotEmpty(json);
-            Assert.Equal("{\"Id\":1,\"Foo\":\"BarBar\"}", json);
+            Assert.Equal("{\"$id\":\"1\",\"Id\":1,\"Foo\":\"BarBar\"}", json);
         }
 
         [Theory]
-        [InlineData("{\"Id\":0,\"Foo\":\"Bar\"}")]
-        [InlineData("{\"id\":0,\"foo\":\"Bar\"}")]
-        [InlineData("{\"Id\": 0, \"Foo\": \"Bar\"}")]
+        [InlineData("{\"$id\":\"1\",\"Id\":0,\"Foo\":\"Bar\"}")]
+        [InlineData("{\"$id\":\"1\",\"id\":0,\"foo\":\"Bar\"}")]
+        [InlineData("{\"$id\":\"1\",\"Id\": 0, \"Foo\": \"Bar\"}")]
         [InlineData(@"{
+    ""$id"":""1"",
     ""Id"": 0,
     ""Foo"": ""Bar""
 }")]
@@ -50,19 +51,20 @@ namespace TPUM.Shared.ModelTests.Formatters
             string json = sut_base.FormatObject(entity);
             Assert.NotNull(json);
             Assert.NotEmpty(json);
-            Assert.Equal("{\"Id\":1,\"Foo\":\"BarBar\"}", json);
+            Assert.Equal("{\"$id\":\"1\",\"Count\":3,\"Id\":1,\"Foo\":\"BarBar\"}", json);
             JsonFormatter<DerivedTestEntity> sut_derived = new();
             json = sut_derived.FormatObject(entity);
             Assert.NotNull(json);
             Assert.NotEmpty(json);
-            Assert.Equal("{\"Count\":3,\"Id\":1,\"Foo\":\"BarBar\"}", json);
+            Assert.Equal("{\"$id\":\"1\",\"Count\":3,\"Id\":1,\"Foo\":\"BarBar\"}", json);
         }
 
         [Theory]
-        [InlineData("{\"Id\":0,\"Foo\":\"Bar\",\"Count\":3}")]
-        [InlineData("{\"id\":0,\"foo\":\"Bar\",\"counT\":3}")]
-        [InlineData("{\"Id\": 0, \"Foo\": \"Bar\", \"Count\": 3}")]
+        [InlineData("{\"$id\":\"1\",\"Id\":0,\"Foo\":\"Bar\",\"Count\":3}")]
+        [InlineData("{\"$id\":\"1\",\"id\":0,\"foo\":\"Bar\",\"counT\":3}")]
+        [InlineData("{\"$id\":\"1\",\"Id\": 0, \"Foo\": \"Bar\", \"Count\": 3}")]
         [InlineData(@"{
+    ""$id"":""1"",
     ""Id"": 0,
     ""Foo"": ""Bar"",
     ""Count"": 3
