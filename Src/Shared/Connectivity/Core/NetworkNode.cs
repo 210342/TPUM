@@ -1,8 +1,10 @@
 ﻿using System;
+using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using TPUM.Shared.Model;
 using TPUM.Shared.Model.Core;
+using TPUM.Shared.Model.Formatters;
 
 namespace TPUM.Shared.Connectivity.Core
 {
@@ -10,6 +12,19 @@ namespace TPUM.Shared.Connectivity.Core
     {
         protected internal readonly int _bufferSize = 1024;
         protected internal CancellationTokenSource _cancellationTokenSource;
+
+        public ISerializer<NetworkEntity> Serializer { get; }
+
+        public NetworkNode() : this (Format.JSON, Encoding.Default) { }
+
+        public NetworkNode(Format format) : this(format, Encoding.Default) { }
+
+        public NetworkNode(Encoding encoding) : this(Format.JSON, encoding) { }
+
+        public NetworkNode(Format format, Encoding encoding)
+        {
+            Serializer = new Serializer<NetworkEntity>(encoding, FormatterFactory.CreateFormatter<NetworkEntity>(format));
+        }
 
         public virtual Task Start()
         {

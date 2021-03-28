@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.ObjectModel;
 using System.Linq;
-using TPUM.Shared.Model;
 using TPUM.Shared.Model.Core;
 using TPUM.Shared.Model.Entities;
 

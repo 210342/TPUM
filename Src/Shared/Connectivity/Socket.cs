@@ -5,7 +5,6 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using TPUM.Shared.Connectivity.Core;
-using TPUM.Shared.Model;
 using TPUM.Shared.Model.Core;
 
 namespace TPUM.Shared.Connectivity
@@ -18,9 +17,9 @@ namespace TPUM.Shared.Connectivity
         public Uri ServerUri { get; }
         public bool IsConnected => _webSocket?.State == WebSocketState.Open;
 
-        public Socket(Uri url) : this(url, null) { }
+        public Socket(Uri url, Format format, Encoding encoding) : this(url, format, encoding, null) { }
 
-        public Socket(Uri url, IRepository repository)
+        public Socket(Uri url, Format format, Encoding encoding, IRepository repository) : base(format, encoding)
         {
             _webSocket = new ClientWebSocket();
             ServerUri = new Uri($"ws://{url}/connect/");
@@ -82,10 +81,9 @@ namespace TPUM.Shared.Connectivity
             {
                 receivedBytes.RemoveRange(endIndex, receivedBytes.Count - endIndex);
             }
-            string json = Encoding.UTF8.GetString(receivedBytes.ToArray());
-            NetworkEntity networkEntity = NetworkEntity.Deserialize(json);
+            NetworkEntity networkEntity = NetworkEntity.Deserialize(receivedBytes.ToArray(), Serializer);
             InvokeEntityChanged(networkEntity);
-            _repository.AddEntity(networkEntity.Entity);
+            _repository?.AddEntity(networkEntity.Entity);
         }
 
         #endregion

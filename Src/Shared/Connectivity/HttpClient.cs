@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Text.Json;
 using System.Threading.Tasks;
-using TPUM.Shared.Model;
+using TPUM.Shared.Model.Core;
 using TPUM.Shared.Model.Entities;
 
 namespace TPUM.Shared.Connectivity

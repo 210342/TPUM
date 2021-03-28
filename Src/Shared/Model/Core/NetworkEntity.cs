@@ -1,42 +1,62 @@
-﻿using System;
+﻿using Newtonsoft.Json;
+using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text.Json;
-using System.Text.Json.Serialization;
+using System.Runtime.Serialization;
+using System.Text;
+using YamlDotNet.Serialization;
 
 namespace TPUM.Shared.Model.Core
 {
-    public class NetworkEntity
+    [DataContract]
+    public class NetworkEntity : IExtensibleDataObject
     {
+        private const byte ENTITY_ASCII_SEPARATOR = 0x1E;
+
+        #region Data properties
+
+        [DataMember]
+        [YamlMember(typeof(string))]
         public Uri Source { get; set; }
+        [DataMember]
         public Guid TypeIdentifier { get; set; }
         [JsonIgnore]
+        [YamlIgnore]
         public object Entity { get; set; }
 
-        public string Serialize()
+        #endregion
+
+        #region Serialization support
+
+        [JsonIgnore]
+        [YamlIgnore]
+        public ExtensionDataObject ExtensionData { get; set; }
+        [YamlIgnore]
+        [JsonExtensionData]
+        public Dictionary<string, object> JsonExtensionData { get; set; }
+
+        #endregion
+
+        public byte[] Serialize(ISerializer<NetworkEntity> serializer)
         {
-            string json = JsonSerializer.Serialize(this);
-            string value = JsonSerializer.Serialize(Entity);
-            return $"{json.Substring(0, json.Length -  1)},\"{nameof(Entity)}\":{value}}}";
+            ISerializer<Entity> entitySerializer = new Serializer<Entity>(serializer.Encoding, serializer.Formatter.Format);
+            byte[] entityBytes = entitySerializer.Serialize(Entity as Entity);
+            byte[] networkEntityBytes = serializer.Serialize(this);
+            return networkEntityBytes.Concat(GetEntitySeparator(serializer)).Concat(entityBytes).ToArray();
         }
 
-        public static NetworkEntity Deserialize(string sourceJson)
+        public static NetworkEntity Deserialize(byte[] source, ISerializer<NetworkEntity> serializer)
         {
-            JsonElement root = JsonDocument.Parse(sourceJson).RootElement;
-            NetworkEntity entity = new NetworkEntity()
+            ISerializer<Entity> entitySerializer = new Serializer<Entity>(serializer.Encoding, serializer.Formatter.Format);
+            (int separatorStartIndex, int separatorEndIndex) = GetEntitySeparatorRange(source, serializer);
+            Span<byte> entityBytes = source.AsSpan(separatorEndIndex, source.Length - separatorEndIndex);
+            Span<byte> networkEntityBytes = source.AsSpan(0, separatorStartIndex == -1 ? source.Length : separatorStartIndex);
+            NetworkEntity entity = serializer.Deserialize(networkEntityBytes.ToArray());
+            if (separatorStartIndex != -1)
             {
-                Source = new Uri(root.GetProperty(nameof(Source)).GetString()),
-                TypeIdentifier = Guid.Parse(root.GetProperty(nameof(TypeIdentifier)).GetString())
-            };
-            return entity.DeserializeValue(sourceJson);
-        }
-
-        private NetworkEntity DeserializeValue(string sourceJson)
-        {
-            Type type = GetType().Assembly.ExportedTypes.FirstOrDefault(t => t.GUID == TypeIdentifier);
-            JsonElement jsonValue = JsonDocument.Parse(sourceJson).RootElement.GetProperty(nameof(Entity));
-            Entity = JsonSerializer.Deserialize(jsonValue.GetRawText(), type);
-            return this;
+                entity.Entity = entitySerializer.Deserialize(entityBytes.ToArray());
+            }
+            return entity;
         }
 
         public override bool Equals(object obj)
@@ -54,6 +74,33 @@ namespace TPUM.Shared.Model.Core
             hashCode = hashCode * -1521134295 + TypeIdentifier.GetHashCode();
             hashCode = hashCode * -1521134295 + EqualityComparer<object>.Default.GetHashCode(Entity);
             return hashCode;
+        }
+
+        private static (int Start, int End) GetEntitySeparatorRange(byte[] source, ISerializer<NetworkEntity> serializer)
+        {
+            byte[] separator = GetEntitySeparator(serializer);
+            int length = source.Length - separator.Length;
+            for (int i = 0; i < length; ++i)
+            {
+                bool found = true;
+                for (int j = 0; j < separator.Length && found; ++j)
+                {
+                    if (source[i + j] != separator[j])
+                    {
+                        found = false;
+                    }
+                }
+                if (found)
+                {
+                    return (i, i + separator.Length);
+                }
+            }
+            return (-1, -1);
+        }
+
+        private static byte[] GetEntitySeparator(ISerializer<NetworkEntity> serializer)
+        {
+            return Encoding.Convert(Encoding.ASCII, serializer.Encoding, new[] { ENTITY_ASCII_SEPARATOR });
         }
     }
 }
