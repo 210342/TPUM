@@ -335,5 +335,20 @@ namespace TPUM.Shared.ModelTests
                 entityType.Name == nameof(Author) ? sut.GetAuthors().Count : sut.GetBooks().Count
             );
         }
+
+        [Fact]
+        public async Task AddEntityDeadlockTest()
+        {
+            int entityCount = 2048;
+            Repository sut = new(new DataContext());
+            Task[] tasks = new Task[]
+            {
+                Task.Run(() => AddAuthorsInLoop(sut, typeof(Author), 0, entityCount)),
+                Task.Run(() => AddAuthorsInLoop(sut, typeof(Book), entityCount, entityCount)),
+            };
+            await Task.WhenAll(tasks);
+            Assert.Equal(entityCount, sut.GetAuthors().Count);
+            Assert.Equal(entityCount, sut.GetBooks().Count);
+        }
     }
 }

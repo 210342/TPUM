@@ -64,6 +64,7 @@ namespace TPUM.Shared.Model
                 return null;
             }
 
+            lock (_authorsLock)
             lock (_booksLock)
             {
                 if (_dataContext.Books.Select(b => b.Id).Contains(book.Id))
@@ -71,20 +72,17 @@ namespace TPUM.Shared.Model
                     return book;
                 }
 
-                lock (_authorsLock)
+                for (int i = 0; i < book.Authors.Count; ++i)
                 {
-                    for (int i = 0; i < book.Authors.Count; ++i)
+                    Author original = _dataContext.Authors.FirstOrDefault(b => b.Id == book.Authors[i].Id);
+                    if (original != null)
                     {
-                        Author original = _dataContext.Authors.FirstOrDefault(b => b.Id == book.Authors[i].Id);
-                        if (original != null)
-                        {
-                            book.Authors[i] = original;
-                        }
+                        book.Authors[i] = original;
                     }
-                    foreach (Author author in book.Authors.Where(b => !_dataContext.Authors.Select(a => a.Id).Contains(b.Id)))
-                    {
-                        _dataContext.AuthorsCollection.Add(author);
-                    }
+                }
+                foreach (Author author in book.Authors.Where(b => !_dataContext.Authors.Select(a => a.Id).Contains(b.Id)))
+                {
+                    _dataContext.AuthorsCollection.Add(author);
                 }
                 _dataContext.BooksCollection.Add(book);
             }
