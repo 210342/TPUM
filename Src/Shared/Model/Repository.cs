@@ -13,7 +13,7 @@ namespace TPUM.Shared.Model
         private readonly object _authorsLock = new object();
 
         private readonly IDisposable _dataContextSubscription;
-        private readonly DataContext _dataContext;
+        private DataContext _dataContext;
 
         public Repository(DataContext dataContext)
         {
@@ -25,79 +25,87 @@ namespace TPUM.Shared.Model
 
         public Author AddAuthor(Author author)
         {
-            if (author == null || _dataContext.Authors.Select(a => a.Id).Contains(author.Id))
+            if (_dataContext is null || author is null)
             {
-                return author;
+                return null;
             }
 
-            lock (_booksLock)
-            {
-                for (int i = 0; i < author.Books.Count; ++i)
-                {
-                    Book original = _dataContext.Books.FirstOrDefault(b => b.Id == author.Books[i].Id);
-                    if (original != null)
-                    {
-                        author.Books[i] = original;
-                    }
-                }
-            }
             lock (_authorsLock)
             {
-                _dataContext.AuthorsCollection.Add(author);
-            }
-            lock (_booksLock)
-            {
-                foreach (Book book in author.Books.Where(b => !_dataContext.Books.Select(a => a.Id).Contains(b.Id)))
+                if (_dataContext.Authors.Select(a => a.Id).Contains(author.Id))
                 {
-                    _dataContext.BooksCollection.Add(book);
+                    return author;
                 }
+
+                lock (_booksLock)
+                {
+                    for (int i = 0; i < author.Books.Count; ++i)
+                    {
+                        Book original = _dataContext.Books.FirstOrDefault(b => b.Id == author.Books[i].Id);
+                        if (original != null)
+                        {
+                            author.Books[i] = original;
+                        }
+                    }
+                    foreach (Book book in author.Books.Where(b => !_dataContext.Books.Select(a => a.Id).Contains(b.Id)))
+                    {
+                        _dataContext.BooksCollection.Add(book);
+                    }
+                }
+                _dataContext.AuthorsCollection.Add(author);
             }
             return author;
         }
 
         public Book AddBook(Book book)
         {
-            if (book == null || _dataContext.Books.Select(b => b.Id).Contains(book.Id))
+            if (_dataContext is null || book is null)
             {
-                return book;
+                return null;
             }
 
             lock (_booksLock)
             {
-                for (int i = 0; i < book.Authors.Count; ++i)
+                if (_dataContext.Books.Select(b => b.Id).Contains(book.Id))
                 {
-                    Author original = _dataContext.Authors.FirstOrDefault(b => b.Id == book.Authors[i].Id);
-                    if (original != null)
+                    return book;
+                }
+
+                lock (_authorsLock)
+                {
+                    for (int i = 0; i < book.Authors.Count; ++i)
                     {
-                        book.Authors[i] = original;
+                        Author original = _dataContext.Authors.FirstOrDefault(b => b.Id == book.Authors[i].Id);
+                        if (original != null)
+                        {
+                            book.Authors[i] = original;
+                        }
+                    }
+                    foreach (Author author in book.Authors.Where(b => !_dataContext.Authors.Select(a => a.Id).Contains(b.Id)))
+                    {
+                        _dataContext.AuthorsCollection.Add(author);
                     }
                 }
-            }
-            _dataContext.BooksCollection.Add(book);
-            lock (_booksLock)
-            {
-                foreach (Author author in book.Authors.Where(b => !_dataContext.Authors.Select(a => a.Id).Contains(b.Id)))
-                {
-                    _dataContext.AuthorsCollection.Add(author);
-                }
+                _dataContext.BooksCollection.Add(book);
             }
             return book;
         }
 
-        public void AddEntity(object entity)
+        public object AddEntity(object entity)
         {
-            if (!(entity is Entity))
+            if (!(entity is Entity) || _dataContext is null)
             {
-                return;
+                return null;
             }
             else if (entity is Book book)
             {
-                AddBook(book);
+                return AddBook(book);
             }
             else if (entity is Author author)
             {
-                AddAuthor(author);
+                return AddAuthor(author);
             }
+            return null;
         }
 
         public List<Book> GetBooks() => _dataContext.Books.ToList();
@@ -125,7 +133,7 @@ namespace TPUM.Shared.Model
         {
             lock (_authorsLock)
             {
-                _dataContext.BooksCollection.Clear();
+                _dataContext.AuthorsCollection.Clear();
                 authors.ForEach(b => _dataContext.AuthorsCollection.Add(b));
             }
         }
@@ -134,11 +142,11 @@ namespace TPUM.Shared.Model
 
         #region IObserver
 
-        public void OnCompleted() { }
+        public virtual void OnCompleted() { }
 
-        public void OnError(Exception error) { }
+        public virtual void OnError(Exception error) { }
 
-        public void OnNext(Entity value)
+        public virtual void OnNext(Entity value)
         {
             InvokeEntityChanged(value);
         }
@@ -161,6 +169,7 @@ namespace TPUM.Shared.Model
 
                 // TODO: free unmanaged resources (unmanaged objects) and override finalizer
                 // TODO: set large fields to null
+                _dataContext = null;
                 _disposedValue = true;
             }
         }

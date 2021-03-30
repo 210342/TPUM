@@ -43,7 +43,7 @@ namespace TPUM.Shared.ViewModel
 
         public ConnectionViewModel()
         {
-            _repository = new Repository(DataContext.ExampleContext());
+            _repository = new Repository(DataContext.GetExampleContext());
             Stock = new StockViewModel(_repository);
         }
     }

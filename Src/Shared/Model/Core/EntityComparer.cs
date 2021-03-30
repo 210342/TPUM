@@ -3,10 +3,18 @@ using System.Collections.Generic;
 
 namespace TPUM.Shared.Model.Core
 {
-    class EntityComparer : IEqualityComparer<Entity>, IComparer<Entity>
+    public class EntityComparer : IEqualityComparer<Entity>, IComparer<Entity>
     {
         public int Compare(Entity x, Entity y)
         {
+            if (x is null)
+            {
+                return -1;
+            }
+            else if (!(x is null) && y is null)
+            {
+                return 1;
+            }
             Type xType = x.GetType(), yType = y.GetType();
             return xType.Equals(yType)
                 ? x.Id - y.Id
@@ -15,6 +23,10 @@ namespace TPUM.Shared.Model.Core
 
         public bool Equals(Entity x, Entity y)
         {
+            if (x is null || y is null)
+            {
+                return false;
+            }
             return x.GetType().Equals(y.GetType())
                 && x.Id == y.Id;
         }

@@ -11,7 +11,7 @@ namespace TPUM.Shared.Model.Core
 
         Book AddBook(Book book);
 
-        void AddEntity(object entity);
+        object AddEntity(object entity);
 
         List<Book> GetBooks();
         Task<List<Book>> GetBooksAsync();
