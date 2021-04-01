@@ -193,7 +193,7 @@ namespace TPUM.Shared.Connectivity
                 {
                     try
                     {
-                        context.WebSocket?.SendAsync(_buffer, WebSocketMessageType.Text, last, _cancellationTokenSource.Token);
+                        context.WebSocket?.SendAsync(_buffer, WebSocketMessageType.Binary, last, _cancellationTokenSource.Token);
                     }
                     catch (WebSocketException ex)
                     {

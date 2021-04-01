@@ -24,14 +24,14 @@ namespace TPUM.Shared.Model
             _books.CollectionChanged += CollectionChanged;
         }
 
-        private DataContext(List<Author> authors, List<Book> books)
+        private DataContext(List<Author> authors, List<Book> books) : this()
         {
-            authors.ForEach(a => _authors.Add(a));
-            books.ForEach(b => _books.Add(b));
+            authors?.ForEach(a => _authors.Add(a));
+            books?.ForEach(b => _books.Add(b));
         }
 
         private void CollectionChanged(object sender, NotifyCollectionChangedEventArgs args)
-            => InvokeEntitiesChanged(args.NewItems.OfType<Entity>());
+            => InvokeEntitiesChanged(args.NewItems?.OfType<Entity>() ?? Enumerable.Empty<Entity>());
 
         #region IDisposable
 
@@ -46,6 +46,8 @@ namespace TPUM.Shared.Model
                 {
                     _authors.CollectionChanged -= CollectionChanged;
                     _books.CollectionChanged -= CollectionChanged;
+                    _authors.Clear();
+                    _books.Clear();
                 }
 
                 // TODO: free unmanaged resources (unmanaged objects) and override finalizer
@@ -56,7 +58,7 @@ namespace TPUM.Shared.Model
 
         #endregion
 
-        public static DataContext ExampleContext()
+        public static DataContext GetExampleContext()
         {
             Book book1 = new Book()
             {
@@ -89,7 +91,9 @@ namespace TPUM.Shared.Model
                 Title = "title3",
                 Authors = new List<Author>() { author2 }
             };
-
+            book1.Authors = new List<Author>() { author1, author2 };
+            author1.Books.Add(book2);
+            author2.Books.Add(book3);
             return new DataContext(
                 new List<Author>() { author1, author2 },
                 new List<Book>() { book1, book2, book3 }
