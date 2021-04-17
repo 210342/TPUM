@@ -7,7 +7,7 @@ using TPUM.Shared.Model.Entities;
 
 namespace TPUM.Shared.Model
 {
-    public class DataContext : Observable<Entity>
+    public class DataContext : Observable<Entity>, IDataContext
     {
         private readonly ObservableCollection<Author> _authors = new ObservableCollection<Author>();
         private readonly ObservableCollection<Book> _books = new ObservableCollection<Book>();
@@ -58,7 +58,7 @@ namespace TPUM.Shared.Model
 
         #endregion
 
-        public static DataContext GetExampleContext()
+        public static IDataContext GetExampleContext()
         {
             Book book1 = new Book()
             {

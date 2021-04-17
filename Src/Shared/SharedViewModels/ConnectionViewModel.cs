@@ -41,10 +41,10 @@ namespace TPUM.Shared.ViewModel
         public virtual bool CanDisconnect { get; }
         public virtual bool CanConnect => !CanDisconnect && Uri.TryCreate(ServerAddress, UriKind.Absolute, out Uri _);
 
-        public ConnectionViewModel()
+        public ConnectionViewModel(IDispatcher dispatcher) : base(dispatcher)
         {
             _repository = new Repository(DataContext.GetExampleContext());
-            Stock = new StockViewModel(_repository);
+            Stock = new StockViewModel(_repository, dispatcher);
         }
     }
 }

@@ -13,7 +13,7 @@ namespace TPUM.Server.ViewModel
         public override bool CanDisconnect => _server?.IsListening ?? false;
         public override bool CanConnect => !CanDisconnect && Uri.TryCreate(ServerAddress, UriKind.Absolute, out Uri _);
 
-        public ServerVM() : base()
+        public ServerVM() : base(null)
         {
             ConnectCommand = new AsyncCommand(Connect);
             DisconnectCommand = new AsyncCommand(Disconnect);
