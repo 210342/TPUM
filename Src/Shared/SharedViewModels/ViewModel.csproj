@@ -12,7 +12,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Connectivity\Connectivity.csproj" />
     <ProjectReference Include="..\Model\Model.csproj" />
   </ItemGroup>
 
