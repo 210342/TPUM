@@ -1,4 +1,6 @@
-﻿using TPUM.Shared.Model.Entities;
+﻿using System.Collections.Generic;
+using System.Linq;
+using TPUM.Shared.Model.Entities;
 
 namespace TPUM.Shared.ViewModel
 {
@@ -14,6 +16,8 @@ namespace TPUM.Shared.ViewModel
                 OnPropertyChanged();
             }
         }
+
+        public IEnumerable<AuthorViewModel> AuthorVMs => Book?.Authors.Select(a => new AuthorViewModel(a));
 
         public BookViewModel()
         {

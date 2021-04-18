@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.ObjectModel;
 using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
 using TPUM.Shared.Model.Core;
 using TPUM.Shared.Model.Entities;
 
@@ -10,6 +12,7 @@ namespace TPUM.Shared.ViewModel
     {
         private readonly IRepository _repository;
         private readonly IDisposable _socketSubscription;
+        private readonly Random _rng = new Random();
 
         #region Observable properties
 
@@ -39,13 +42,67 @@ namespace TPUM.Shared.ViewModel
 
         #endregion
 
-        public StockViewModel(IRepository repository)
+        #region Commands
+
+        public Command AddAuthorCommand { get; private set; }
+
+        #endregion
+
+        public StockViewModel(IRepository repository, IDispatcher dispatcher) : base(dispatcher)
         {
             _repository = repository;
             _socketSubscription = _repository.Subscribe(this);
             _repository.GetAuthors().ForEach(a => Authors.Add(new AuthorViewModel(a)));
             _repository.GetBooks().ForEach(b => Books.Add(new BookViewModel(b)));
+            AddAuthorCommand = new Command(AddAuthor);
+            Task.Run(() =>
+            {
+                while (true)
+                {
+                    Thread.Sleep(5000);
+                    int id;
+                    do
+                    {
+                        id = _rng.Next(5000);
+                    }
+                    while (_repository.GetBookById(id) != null);
+                    Book newBook = new Book()
+                    {
+                        Id = id,
+                        Title = $"{id} - {nameof(Book.Title)}"
+                    };
+                    _repository.AddBook(newBook);
+                }
+            });
         }
+
+        #region Command implementations
+
+        public void AddAuthor(object args)
+        {
+            Task.Run(() =>
+            {
+                int id;
+                do
+                {
+                    id = _rng.Next(5000);
+                }
+                while (_repository.GetAuthorById(id) != null);
+
+                Author newAuthor = new Author()
+                {
+                    Id = id,
+                    FirstName = $"{id} - {nameof(Author.FirstName)}",
+                    LastName = $"{id} - {nameof(Author.LastName)}",
+                    NickName = $"{id} - {nameof(Author.NickName)}"
+                };
+                _repository.AddAuthor(newAuthor);
+            });
+        }
+
+        #endregion
+
+        #region IObserver
 
         public void OnCompleted() { }
 
@@ -53,17 +110,21 @@ namespace TPUM.Shared.ViewModel
 
         public void OnNext(Entity value)
         {
-            if (value is Book book)
-            {
-                Books.Remove(Books.FirstOrDefault(b => b.Book.Id == book.Id));
-                Books.Add(new BookViewModel(book));
-            }
-            else if (value is Author author)
-            {
-                Authors.Remove(Authors.FirstOrDefault(a => a.Author.Id == author.Id));
-                Authors.Add(new AuthorViewModel(author));
-            }
+            _dispatcher?.Invoke(() => {
+                if (value is Book book)
+                {
+                    Books.Remove(Books.FirstOrDefault(b => b.Book.Id == book.Id));
+                    Books.Add(new BookViewModel(book));
+                }
+                else if (value is Author author)
+                {
+                    Authors.Remove(Authors.FirstOrDefault(a => a.Author.Id == author.Id));
+                    Authors.Add(new AuthorViewModel(author));
+                }
+            });
         }
+
+        #endregion
 
         #region IDisposable
 

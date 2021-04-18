@@ -15,9 +15,11 @@ namespace TPUM.Shared.Model
         private readonly IDisposable _dataContextSubscription;
         private DataContext _dataContext;
 
-        public Repository(DataContext dataContext)
+        public Repository() : this(DataContext.GetExampleContext()) { }
+
+        public Repository(IDataContext dataContext)
         {
-            _dataContext = dataContext ?? throw new ArgumentNullException(nameof(dataContext));
+            _dataContext = dataContext as DataContext ?? throw new ArgumentNullException(nameof(dataContext));
             _dataContextSubscription = _dataContext.Subscribe(this);
         }
 
