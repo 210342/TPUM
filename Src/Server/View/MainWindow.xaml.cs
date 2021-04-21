@@ -1,7 +1,4 @@
 ﻿using System.Windows;
-using TPUM.Shared.Model;
-using TPUM.Shared.View;
-using TPUM.Shared.ViewModel;
 
 namespace TPUM.Server.View
 {
@@ -13,10 +10,6 @@ namespace TPUM.Server.View
         public MainWindow()
         {
             InitializeComponent();
-            DataContext = new StockViewModel(
-                new Repository(), 
-                new Dispatcher(Dispatcher)
-            );
         }
     }
 }

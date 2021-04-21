@@ -12,6 +12,7 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
+using TPUM.Shared.ViewModel;
 
 namespace TPUM.Shared.View
 {
@@ -23,6 +24,9 @@ namespace TPUM.Shared.View
         public StockControl()
         {
             InitializeComponent();
+            DataContext = new StockViewModel(
+                new Dispatcher(Dispatcher)
+            );
         }
     }
 }

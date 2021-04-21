@@ -1,13 +1,13 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
-using TPUM.Shared.Model.Entities;
+using TPUM.Shared.Data.Entities;
 
 namespace TPUM.Shared.ViewModel
 {
     public class AuthorViewModel : ViewModel
     {
-        private Author _author;
-        public Author Author
+        private IAuthor _author;
+        public IAuthor Author
         {
             get => _author;
             set
@@ -24,7 +24,7 @@ namespace TPUM.Shared.ViewModel
 
         }
 
-        public AuthorViewModel(Author author)
+        public AuthorViewModel(IAuthor author)
         {
             Author = author;
         }
