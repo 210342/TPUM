@@ -12,7 +12,7 @@ namespace TPUM.Shared.ViewModel
 
         public Command(Action<object> execute) : this(execute, null) { }
 
-        public Command(Action<object> execute, Func<object, bool> canExecute) 
+        public Command(Action<object> execute, Func<object, bool> canExecute)
         {
             _execute = execute;
             _canExecute = canExecute;

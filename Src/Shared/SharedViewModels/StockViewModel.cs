@@ -3,12 +3,13 @@ using System.Collections.ObjectModel;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using TPUM.Shared.Model.Core;
-using TPUM.Shared.Model.Entities;
+using TPUM.Shared.Data;
+using TPUM.Shared.Data.Core;
+using TPUM.Shared.Data.Entities;
 
 namespace TPUM.Shared.ViewModel
 {
-    public class StockViewModel : ViewModel, IObserver<Entity>, IDisposable
+    public class StockViewModel : ViewModel, IObserver<IEntity>, IDisposable
     {
         private readonly IRepository _repository;
         private readonly IDisposable _socketSubscription;
@@ -48,6 +49,8 @@ namespace TPUM.Shared.ViewModel
 
         #endregion
 
+        public StockViewModel(IDispatcher dispatcher) : this(DataFactory.CreateObject<IRepository>(), dispatcher) { }
+
         public StockViewModel(IRepository repository, IDispatcher dispatcher) : base(dispatcher)
         {
             _repository = repository;
@@ -66,11 +69,9 @@ namespace TPUM.Shared.ViewModel
                         id = _rng.Next(5000);
                     }
                     while (_repository.GetBookById(id) != null);
-                    Book newBook = new Book()
-                    {
-                        Id = id,
-                        Title = $"{id} - {nameof(Book.Title)}"
-                    };
+                    IBook newBook = DataFactory.CreateObject<IBook>();
+                    newBook.Id = id;
+                    newBook.Title = $"{id} - {nameof(IBook.Title)}";
                     _repository.AddBook(newBook);
                 }
             });
@@ -89,13 +90,11 @@ namespace TPUM.Shared.ViewModel
                 }
                 while (_repository.GetAuthorById(id) != null);
 
-                Author newAuthor = new Author()
-                {
-                    Id = id,
-                    FirstName = $"{id} - {nameof(Author.FirstName)}",
-                    LastName = $"{id} - {nameof(Author.LastName)}",
-                    NickName = $"{id} - {nameof(Author.NickName)}"
-                };
+                IAuthor newAuthor = DataFactory.CreateObject<IAuthor>();
+                newAuthor.Id = id;
+                newAuthor.FirstName = $"{id} - {nameof(IAuthor.FirstName)}";
+                newAuthor.LastName = $"{id} - {nameof(IAuthor.LastName)}";
+                newAuthor.NickName = $"{id} - {nameof(IAuthor.NickName)}";
                 _repository.AddAuthor(newAuthor);
             });
         }
@@ -108,15 +107,16 @@ namespace TPUM.Shared.ViewModel
 
         public void OnError(Exception error) { }
 
-        public void OnNext(Entity value)
+        public void OnNext(IEntity value)
         {
-            _dispatcher?.Invoke(() => {
-                if (value is Book book)
+            _dispatcher?.Invoke(() =>
+            {
+                if (value is IBook book)
                 {
                     Books.Remove(Books.FirstOrDefault(b => b.Book.Id == book.Id));
                     Books.Add(new BookViewModel(book));
                 }
-                else if (value is Author author)
+                else if (value is IAuthor author)
                 {
                     Authors.Remove(Authors.FirstOrDefault(a => a.Author.Id == author.Id));
                     Authors.Add(new AuthorViewModel(author));

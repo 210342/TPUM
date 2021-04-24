@@ -3,17 +3,20 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 16
 VisualStudioVersion = 16.0.29613.14
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Model", "Shared\Model\Model.csproj", "{442D001C-7476-4607-80CC-BE578F70640D}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Data", "Shared\Data\Data.csproj", "{442D001C-7476-4607-80CC-BE578F70640D}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Server", "Server", "{688FEB76-3E5A-4260-B21C-431637C733FD}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Client", "Client", "{ABBB723B-12CB-48BC-A98E-829DC1370C77}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ViewModel", "Shared\SharedViewModels\ViewModel.csproj", "{E64D4CBE-747C-4457-8A6B-32E2DCEF088C}"
+	ProjectSection(ProjectDependencies) = postProject
+		{442D001C-7476-4607-80CC-BE578F70640D} = {442D001C-7476-4607-80CC-BE578F70640D}
+	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Shared", "Shared", "{F2506890-7AE2-42A0-B028-A9943F20B91A}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ModelTests", "Shared\ModelTests\ModelTests.csproj", "{5741A638-0D27-4F7E-A581-1B3022FBE22A}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DataTests", "Shared\DataTests\DataTests.csproj", "{5741A638-0D27-4F7E-A581-1B3022FBE22A}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "View", "Server\View\View.csproj", "{27CAF874-B367-406A-B5C5-C1CE61383916}"
 EndProject

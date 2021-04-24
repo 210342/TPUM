@@ -7,5 +7,5 @@
         xmlns:ctrls="clr-namespace:TPUM.Shared.View;assembly=SharedViews"
         mc:Ignorable="d"
         Title="TPUM - Server" Height="736" Width="1366">
-    <ctrls:StockControl DataContext="{Binding .}" Margin="2,2,2,2" />
+    <ctrls:StockControl Margin="2,2,2,2" />
 </Window>
