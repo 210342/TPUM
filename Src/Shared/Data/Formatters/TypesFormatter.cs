@@ -15,7 +15,7 @@ namespace TPUM.Shared.Data.Formatters
             knownTypes = knownTypes?.Where(t => t != null);
             if (knownTypes == null || !knownTypes.Any())
             {
-                knownTypes = new[] { typeof(T)};
+                knownTypes = new[] { typeof(T) };
             }
             KnownTypes = knownTypes.Distinct();
         }

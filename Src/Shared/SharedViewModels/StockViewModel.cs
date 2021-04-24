@@ -3,6 +3,7 @@ using System.Collections.ObjectModel;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using TPUM.Shared.Data;
 using TPUM.Shared.Data.Core;
 using TPUM.Shared.Data.Entities;
 
@@ -108,7 +109,8 @@ namespace TPUM.Shared.ViewModel
 
         public void OnNext(IEntity value)
         {
-            _dispatcher?.Invoke(() => {
+            _dispatcher?.Invoke(() =>
+            {
                 if (value is IBook book)
                 {
                     Books.Remove(Books.FirstOrDefault(b => b.Book.Id == book.Id));

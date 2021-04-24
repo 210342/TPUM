@@ -8,7 +8,7 @@ using TPUM.Shared.Data.Formatters;
 namespace TPUM.Shared.Data
 {
     internal class Serializer<T> : ISerializer<T>
-        where T: class
+        where T : class
     {
         public Encoding Encoding { get; }
         public IFormatter<T> Formatter { get; }

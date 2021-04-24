@@ -10,17 +10,17 @@ namespace TPUM.Shared.DataTests.Formatters
     {
         public static IEnumerable<object[]> GetTestTypes()
         {
-            yield return new object[] {Format.JSON, typeof(JsonFormatter<TestEntity>) };
-            yield return new object[] {Format.YAML, typeof(YamlFormatter<TestEntity>) };
-            yield return new object[] {Format.XML, typeof(XmlFormatter<TestEntity>) };
+            yield return new object[] { Format.JSON, typeof(JsonFormatter<TestEntity>) };
+            yield return new object[] { Format.YAML, typeof(YamlFormatter<TestEntity>) };
+            yield return new object[] { Format.XML, typeof(XmlFormatter<TestEntity>) };
         }
         public static IEnumerable<object[]> GetTestTypesWithKnownTypes()
         {
-            yield return new object[] { Format.JSON, typeof(JsonFormatter<TestEntity>), new[] { typeof(TestEntity) }, new[] { typeof(TestEntity)} };
-            yield return new object[] { Format.JSON, typeof(JsonFormatter<TestEntity>), new[] { typeof(DerivedTestEntity) }, new[] { typeof(DerivedTestEntity)} };
+            yield return new object[] { Format.JSON, typeof(JsonFormatter<TestEntity>), new[] { typeof(TestEntity) }, new[] { typeof(TestEntity) } };
+            yield return new object[] { Format.JSON, typeof(JsonFormatter<TestEntity>), new[] { typeof(DerivedTestEntity) }, new[] { typeof(DerivedTestEntity) } };
             yield return new object[] { Format.YAML, typeof(YamlFormatter<TestEntity>), new[] { typeof(TestEntity) }, new[] { typeof(TestEntity) } };
             yield return new object[] { Format.YAML, typeof(YamlFormatter<TestEntity>), new[] { typeof(DerivedTestEntity) }, new[] { typeof(DerivedTestEntity) } };
-            yield return new object[] { Format.XML, typeof(XmlFormatter<TestEntity>), new[] { typeof(TestEntity) }, new[] { typeof(TestEntity)} };
+            yield return new object[] { Format.XML, typeof(XmlFormatter<TestEntity>), new[] { typeof(TestEntity) }, new[] { typeof(TestEntity) } };
             yield return new object[] { Format.XML, typeof(XmlFormatter<TestEntity>), new[] { typeof(DerivedTestEntity) }, new[] { typeof(DerivedTestEntity) } };
         }
 

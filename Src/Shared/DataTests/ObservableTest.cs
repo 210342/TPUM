@@ -9,9 +9,9 @@ namespace TPUM.Shared.DataTests
 {
     public class ObservableTest
     {
-        private class ObservableImpl : Observable<TestEntity> 
+        private class ObservableImpl : Observable<TestEntity>
         {
-            internal void InvokeEntityChangedForTests(TestEntity entity) 
+            internal void InvokeEntityChangedForTests(TestEntity entity)
                 => InvokeEntityChanged(entity);
 
             internal void InvokeEntitiesChangedForTests(IEnumerable<TestEntity> entity)

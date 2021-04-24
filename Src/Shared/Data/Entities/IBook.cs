@@ -1,6 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
+﻿using System.Collections.Generic;
 using TPUM.Shared.Data.Core;
 
 namespace TPUM.Shared.Data.Entities

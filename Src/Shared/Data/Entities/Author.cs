@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.InteropServices;
 using System.Runtime.Serialization;
-using TPUM.Shared.Data.Core;
 
 namespace TPUM.Shared.Data.Entities
 {

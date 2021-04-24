@@ -1,9 +1,7 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 
-namespace TPUM.Shared.Data.Core
+namespace TPUM.Shared.Data
 {
     public static class DataFactory
     {
@@ -12,7 +10,7 @@ namespace TPUM.Shared.Data.Core
             Type matchingType = typeof(DataFactory)
                 .Assembly
                 .GetTypes()
-                .Where(t => t.IsAssignableFrom(typeof(T))
+                .Where(t => typeof(T).IsAssignableFrom(t)
                     && !t.IsAbstract
                     && !t.IsInterface)
                 .FirstOrDefault();
@@ -20,7 +18,7 @@ namespace TPUM.Shared.Data.Core
             return matchingType == null ? default : Activator.CreateInstance(matchingType, @params) as T;
         }
 
-        public static T CreateObject<T>(string typeName, params object[] @params) where T: class
+        public static T CreateObject<T>(string typeName, params object[] @params) where T : class
         {
             if (string.IsNullOrEmpty(typeName))
             {
@@ -29,11 +27,12 @@ namespace TPUM.Shared.Data.Core
             Type matchingType = typeof(DataFactory)
                 .Assembly
                 .GetTypes()
-                .Where(t => t.IsAssignableFrom(typeof(T))
+                .Where(t => typeof(T).IsAssignableFrom(t)
                     && !t.IsAbstract
-                    && !t.IsInterface)
-                .FirstOrDefault(t => t.Name.Equals(typeName));
-            
+                    && !t.IsInterface
+                    && t.Name.Equals(typeName))
+                .FirstOrDefault();
+
             return matchingType == null ? default : Activator.CreateInstance(matchingType, @params) as T;
         }
     }

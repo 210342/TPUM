@@ -39,10 +39,10 @@ namespace TPUM.Shared.DataTests
             yield return new object[] { new TestEntity() { Id = 0 }, new TestEntity() { Id = 0 }, true };
             yield return new object[] { new TestEntity() { Id = 0 }, new TestEntity() { Id = 1 }, false };
             yield return new object[] { new TestEntity() { Id = 1 }, new DerivedTestEntity() { Id = 1 }, false };
-            yield return new object[] { new TestEntity(), new DerivedTestEntity() , false };
-            yield return new object[] { new DerivedTestEntity(), new TestEntity() , false };
-            yield return new object[] { new DerivedTestEntity() { Id = 0 }, new DerivedTestEntity() { Id = 1 } , false };
-            yield return new object[] { new DerivedTestEntity() { Id = 1 }, new DerivedTestEntity() { Id = 1 } , true };
+            yield return new object[] { new TestEntity(), new DerivedTestEntity(), false };
+            yield return new object[] { new DerivedTestEntity(), new TestEntity(), false };
+            yield return new object[] { new DerivedTestEntity() { Id = 0 }, new DerivedTestEntity() { Id = 1 }, false };
+            yield return new object[] { new DerivedTestEntity() { Id = 1 }, new DerivedTestEntity() { Id = 1 }, true };
         }
 
         public static IEnumerable<object[]> GetHashCodeParams()
@@ -60,7 +60,7 @@ namespace TPUM.Shared.DataTests
         [MemberData(nameof(ExpectedIds))]
         public void CompareTest_Exact(int lhsId, int rhsId, int expectedValue)
         {
-            Entity lhs = new TestEntity() { Id = lhsId }; 
+            Entity lhs = new TestEntity() { Id = lhsId };
             Entity rhs = new TestEntity() { Id = rhsId };
             Assert.Equal(expectedValue, new EntityComparer().Compare(lhs, rhs));
         }

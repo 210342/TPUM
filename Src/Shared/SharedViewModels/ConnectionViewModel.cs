@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Windows.Input;
+using TPUM.Shared.Data;
 using TPUM.Shared.Data.Core;
 
 namespace TPUM.Shared.ViewModel

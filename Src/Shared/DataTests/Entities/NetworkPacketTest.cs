@@ -82,7 +82,7 @@ namespace TPUM.Shared.DataTests.Entities
             object entity2 = new Entity() { Id = 1 };
             object entity3 = null;
             NetworkPacket networkEntity111 = new()
-            { 
+            {
                 Source = source1,
                 TypeIdentifier = typeIdentifier1,
                 Entity = entity1
