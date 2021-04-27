@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Windows.Input;
-using TPUM.Shared.Data;
+using TPUM.Shared.Logic;
 using TPUM.Shared.Logic.Core;
 
 namespace TPUM.Shared.ViewModel
@@ -43,7 +43,7 @@ namespace TPUM.Shared.ViewModel
 
         public ConnectionViewModel(IDispatcher dispatcher) : base(dispatcher)
         {
-            _repository = DataFactory.CreateObject<IRepository>();
+            _repository = LogicFactory.CreateObject<IRepository>();
             Stock = new StockViewModel(_repository, dispatcher);
         }
     }

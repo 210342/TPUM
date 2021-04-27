@@ -24,10 +24,16 @@ namespace TPUM.Shared.Data
             _books.CollectionChanged += CollectionChanged;
         }
 
-        internal DataContext(List<Author> authors, List<Book> books) : this()
+        internal DataContext(IEnumerable<IAuthor> authors, IEnumerable<IBook> books) : this()
         {
-            authors?.ForEach(a => _authors.Add(a));
-            books?.ForEach(b => _books.Add(b));
+            foreach(IAuthor author in authors ?? Enumerable.Empty<IAuthor>())
+            {
+                _authors.Add(new Author(author));
+            }
+            foreach (IBook book in books ?? Enumerable.Empty<IBook>())
+            {
+                _books.Add(new Book(book));
+            }
         }
 
         public void AddAuthor(IAuthor author)
@@ -48,7 +54,7 @@ namespace TPUM.Shared.Data
         {
             _books.Clear();
         }
-        public void UpdateBooks(List<IBook> books)
+        public void UpdateBooks(IEnumerable<IBook> books)
         {
             IEnumerable<Book> booksToAdd = books.Select(b => new Book()
             {
@@ -61,7 +67,7 @@ namespace TPUM.Shared.Data
                 AddBook(book);
             }
         }
-        public void UpdateAuthors(List<IAuthor> authors)
+        public void UpdateAuthors(IEnumerable<IAuthor> authors)
         {
             IEnumerable<Author> authorsToAdd = authors.Select(a => new Author()
             {

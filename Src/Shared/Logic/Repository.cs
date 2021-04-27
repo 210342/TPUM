@@ -6,10 +6,11 @@ using TPUM.Shared.Data;
 using TPUM.Shared.Data.Core;
 using TPUM.Shared.Data.Entities;
 using TPUM.Shared.Logic.Core;
+using TPUM.Shared.Logic.Dto;
 
 namespace TPUM.Shared.Logic
 {
-    internal class Repository : Observable<IEntity>, IRepository, IObserver<IEntity>
+    internal class Repository : Observable<IEntityDto>, IRepository, IObserver<IEntity>
     {
         private readonly object _booksLock = new object();
         private readonly object _authorsLock = new object();
@@ -28,7 +29,7 @@ namespace TPUM.Shared.Logic
 
         #region Repository
 
-        public IAuthor AddAuthor(IAuthor author)
+        public IAuthorDto AddAuthor(IAuthorDto author)
         {
             if (_dataContext is null || author is null)
             {
@@ -52,7 +53,7 @@ namespace TPUM.Shared.Logic
                             author.Books[i] = original;
                         }
                     }
-                    foreach (IBook book in author.Books.Where(b => !_dataContext.Books.Select(a => a.Id).Contains(b.Id)))
+                    foreach (IBookDto book in author.Books.Where(b => !_dataContext.Books.Select(a => a.Id).Contains(b.Id)))
                     {
                         _dataContext.AddBook(book);
                     }
@@ -62,7 +63,7 @@ namespace TPUM.Shared.Logic
             return author;
         }
 
-        public IBook AddBook(IBook book)
+        public IBookDto AddBook(IBookDto book)
         {
             if (_dataContext is null || book is null)
             {
@@ -100,30 +101,46 @@ namespace TPUM.Shared.Logic
             {
                 return null;
             }
-            else if (entity is IBook book)
+            else if (entity is IBookDto book)
             {
                 return AddBook(book);
             }
-            else if (entity is IAuthor author)
+            else if (entity is IAuthorDto author)
             {
                 return AddAuthor(author);
             }
             return null;
         }
 
-        public List<IBook> GetBooks() => _dataContext.Books.Cast<IBook>().ToList();
+        public List<IBookDto> GetBooks() => _dataContext.Books.Select(b => new BookDto(b) as IBookDto).ToList();
 
-        public List<IAuthor> GetAuthors() => _dataContext.Authors.Cast<IAuthor>().ToList();
+        public List<IAuthorDto> GetAuthors() => _dataContext.Authors.Select(a => new AuthorDto(a) as IAuthorDto).ToList();
 
-        public async Task<List<IBook>> GetBooksAsync() => await Task.Run(GetBooks);
+        public async Task<List<IBookDto>> GetBooksAsync() => await Task.Run(GetBooks);
 
-        public async Task<List<IAuthor>> GetAuthorsAsync() => await Task.Run(GetAuthors);
+        public async Task<List<IAuthorDto>> GetAuthorsAsync() => await Task.Run(GetAuthors);
 
-        public IAuthor GetAuthorById(int id) => _dataContext.Authors.FirstOrDefault(a => a.Id == id);
+        public IAuthorDto GetAuthorById(int id)
+        {
+            IAuthor author = _dataContext.Authors.FirstOrDefault(a => a.Id == id);
+            if (author != null)
+            {
+                return new AuthorDto(author);
+            }
+            return default;
+        }
 
-        public IBook GetBookById(int id) => _dataContext.Books.FirstOrDefault(b => b.Id == id);
+        public IBookDto GetBookById(int id)
+        {
+            IBook book = _dataContext.Books.FirstOrDefault(b => b.Id == id);
+            if (book != null)
+            {
+                return new BookDto(book);
+            }
+            return default;
+        }
 
-        public void UpdateBooks(List<IBook> books)
+        public void UpdateBooks(List<IBookDto> books)
         {
             lock (_booksLock)
             {
@@ -132,7 +149,7 @@ namespace TPUM.Shared.Logic
             }
         }
 
-        public void UpdateAuthors(List<IAuthor> authors)
+        public void UpdateAuthors(List<IAuthorDto> authors)
         {
             lock (_authorsLock)
             {
@@ -151,7 +168,7 @@ namespace TPUM.Shared.Logic
 
         public virtual void OnNext(IEntity value)
         {
-            InvokeEntityChanged(value);
+            InvokeEntityChanged(value as IEntityDto ?? LogicFactory.CreateDtoObjectForEntity(value) as IEntityDto);
         }
 
         #endregion

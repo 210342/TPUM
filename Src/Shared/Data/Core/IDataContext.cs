@@ -12,7 +12,7 @@ namespace TPUM.Shared.Data.Core
         void AddBook(IBook book);
         void ClearAuthors();
         void ClearBooks();
-        void UpdateBooks(List<IBook> books);
-        void UpdateAuthors(List<IAuthor> authors);
+        void UpdateBooks(IEnumerable<IBook> books);
+        void UpdateAuthors(IEnumerable<IAuthor> authors);
     }
 }

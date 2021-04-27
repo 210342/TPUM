@@ -1,12 +1,12 @@
 ﻿using System;
 using System.Threading;
 using System.Threading.Tasks;
-using TPUM.Shared.Data.Entities;
 using TPUM.Shared.Logic.Core;
+using TPUM.Shared.Logic.Dto;
 
 namespace TPUM.Shared.Logic
 {
-    public static class Logic
+    public static class ObjectCreation
     {
         public static void AddAuthor(IRepository repository)
         {
@@ -20,11 +20,13 @@ namespace TPUM.Shared.Logic
                 }
                 while (repository.GetAuthorById(id) != null);
 
-                IAuthor newAuthor = Data.DataFactory.CreateObject<IAuthor>();
-                newAuthor.Id = id;
-                newAuthor.FirstName = $"{id} - {nameof(IAuthor.FirstName)}";
-                newAuthor.LastName = $"{id} - {nameof(IAuthor.LastName)}";
-                newAuthor.NickName = $"{id} - {nameof(IAuthor.NickName)}";
+                IAuthorDto newAuthor = new AuthorDto
+                {
+                    Id = id,
+                    FirstName = $"{id} - {nameof(IAuthorDto.FirstName)}",
+                    LastName = $"{id} - {nameof(IAuthorDto.LastName)}",
+                    NickName = $"{id} - {nameof(IAuthorDto.NickName)}"
+                };
                 repository.AddAuthor(newAuthor);
             });
         }
@@ -43,9 +45,11 @@ namespace TPUM.Shared.Logic
                         id = _rng.Next(5000);
                     }
                     while (repository.GetBookById(id) != null);
-                    IBook newBook = Data.DataFactory.CreateObject<IBook>();
-                    newBook.Id = id;
-                    newBook.Title = $"{id} - {nameof(IBook.Title)}";
+                    IBookDto newBook = new BookDto
+                    {
+                        Id = id,
+                        Title = $"{id} - {nameof(IBookDto.Title)}"
+                    };
                     repository.AddBook(newBook);
                 }
             });

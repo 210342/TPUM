@@ -9,24 +9,29 @@ using TPUM.Shared.Data.Entities;
 using TPUM.Shared.Logic;
 using Xunit;
 using TPUM.Shared.Logic.Core;
+using TPUM.Shared.Logic.Dto;
 
 namespace TPUM.Shared.LogicTests
 {
     public class RepositoryTest
     {
-        internal class AuthorTestObject : IAuthor
+        internal class AuthorTestObject : IAuthorDto
         {
             public string FirstName { get; set; }
             public string LastName { get; set; }
             public string NickName { get; set; }
             public List<IBook> Books { get; set; } = new List<IBook>();
             public int Id { get; set; }
+            public IEnumerable<IBookDto> BookDtos { get; }
+            public int EntityId { get; }
         }
-        internal class BookTestObject : IBook
+        internal class BookTestObject : IBookDto
         {
             public string Title { get; set; }
             public List<IAuthor> Authors { get; set; } = new List<IAuthor>();
             public int Id { get; set; }
+            public IEnumerable<IAuthorDto> AuthorDtos { get; }
+            public int EntityId { get; }
         }
         [Fact]
         public void ConstructorTest_NullParameter()
@@ -56,7 +61,7 @@ namespace TPUM.Shared.LogicTests
         public void GetBooksTest()
         {
             Repository sut = new(DataFactory.GetExampleContext());
-            List<IBook> books = sut.GetBooks();
+            List<IBookDto> books = sut.GetBooks();
             Assert.Equal(3, books.Count);
         }
 
@@ -64,7 +69,7 @@ namespace TPUM.Shared.LogicTests
         public void GetAuthorsTest()
         {
             Repository sut = new(DataFactory.GetExampleContext());
-            List<IAuthor> authors = sut.GetAuthors();
+            List<IAuthorDto> authors = sut.GetAuthors();
             Assert.Equal(2, authors.Count);
         }
 
@@ -72,7 +77,7 @@ namespace TPUM.Shared.LogicTests
         public async Task GetBooksAsyncTest()
         {
             Repository sut = new(DataFactory.GetExampleContext());
-            List<IBook> books = await sut.GetBooksAsync();
+            List<IBookDto> books = await sut.GetBooksAsync();
             Assert.Equal(3, books.Count);
         }
 
@@ -80,7 +85,7 @@ namespace TPUM.Shared.LogicTests
         public async Task GetAuthorsAsyncTest()
         {
             Repository sut = new(DataFactory.GetExampleContext());
-            List<IAuthor> authors = await sut.GetAuthorsAsync();
+            List<IAuthorDto> authors = await sut.GetAuthorsAsync();
             Assert.Equal(2, authors.Count);
         }
 
@@ -112,7 +117,7 @@ namespace TPUM.Shared.LogicTests
             mock.CallBase = true;
             Repository sut = mock.Object;
             mock.Setup(repo => repo.OnNext(It.IsAny<IEntity>())).Callback(() => ++subscriptionRaisedCount);
-            sut.UpdateAuthors(new List<IAuthor>() { new AuthorTestObject() { Id = 6, NickName = "Homer" } });
+            sut.UpdateAuthors(new List<IAuthorDto>() { new AuthorTestObject() { Id = 6, NickName = "Homer" } });
             Assert.Single(sut.GetAuthors());
             Assert.Equal(1, subscriptionRaisedCount);
         }
@@ -125,7 +130,7 @@ namespace TPUM.Shared.LogicTests
             mock.CallBase = true;
             Repository sut = mock.Object;
             mock.Setup(repo => repo.OnNext(It.IsAny<IEntity>())).Callback(() => ++subscriptionRaisedCount);
-            sut.UpdateBooks(new List<IBook>() { new BookTestObject() { Id = 7, Title = "Iliad" } });
+            sut.UpdateBooks(new List<IBookDto>() { new BookTestObject() { Id = 7, Title = "Iliad" } });
             Assert.Single(sut.GetBooks());
             Assert.Equal(1, subscriptionRaisedCount);
         }
@@ -327,15 +332,15 @@ namespace TPUM.Shared.LogicTests
         {
             for (int i = startingId; i < startingId + count; ++i)
             {
-                IEntity entity = DataFactory.CreateObject(entityType) as IEntity;
+                IEntity entity = LogicFactory.CreateObject(entityType) as IEntity;
                 entity.Id = i;
                 repository.AddEntity(entity);
             }
         }
 
         [Theory]
-        [InlineData(typeof(IAuthor))]
-        [InlineData(typeof(IBook))]
+        [InlineData(typeof(IAuthorDto))]
+        [InlineData(typeof(IBookDto))]
         public async Task AddEntityConcurrentTest(Type entityType)
         {
             int entityCount = 2048;
@@ -348,7 +353,7 @@ namespace TPUM.Shared.LogicTests
             await Task.WhenAll(tasks);
             Assert.Equal(
                 tasks.Length * entityCount,
-                entityType.Name == nameof(IAuthor) ? sut.GetAuthors().Count : sut.GetBooks().Count
+                entityType.Name == nameof(IAuthorDto) ? sut.GetAuthors().Count : sut.GetBooks().Count
             );
         }
 
@@ -359,8 +364,8 @@ namespace TPUM.Shared.LogicTests
             Repository sut = new(DataFactory.CreateObject<IDataContext>());
             Task[] tasks = new Task[]
             {
-                Task.Run(() => AddAuthorsInLoop(sut, typeof(IAuthor), 0, entityCount)),
-                Task.Run(() => AddAuthorsInLoop(sut, typeof(IBook), entityCount, entityCount)),
+                Task.Run(() => AddAuthorsInLoop(sut, typeof(IAuthorDto), 0, entityCount)),
+                Task.Run(() => AddAuthorsInLoop(sut, typeof(IBookDto), entityCount, entityCount)),
             };
             await Task.WhenAll(tasks);
             Assert.Equal(entityCount, sut.GetAuthors().Count);

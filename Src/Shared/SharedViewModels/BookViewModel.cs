@@ -1,13 +1,13 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
-using TPUM.Shared.Data.Entities;
+using TPUM.Shared.Logic.Dto;
 
 namespace TPUM.Shared.ViewModel
 {
     public class BookViewModel : ViewModel
     {
-        private IBook _book;
-        public IBook Book
+        private IBookDto _book;
+        public IBookDto Book
         {
             get => _book;
             set
@@ -17,14 +17,14 @@ namespace TPUM.Shared.ViewModel
             }
         }
 
-        public IEnumerable<AuthorViewModel> AuthorVMs => Book?.Authors.Select(a => new AuthorViewModel(a));
+        public IEnumerable<AuthorViewModel> AuthorVMs => Book?.AuthorDtos.Select(a => new AuthorViewModel(a));
 
         public BookViewModel()
         {
 
         }
 
-        public BookViewModel(IBook book)
+        public BookViewModel(IBookDto book)
         {
             Book = book;
         }
