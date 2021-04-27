@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
+using System.Reflection;
 using TPUM.Shared.Data.Core;
 using TPUM.Shared.Data.Entities;
 
@@ -59,7 +61,15 @@ namespace TPUM.Shared.Data
                     && !t.IsInterface)
                 .FirstOrDefault();
 
-            return matchingType == null ? default : Activator.CreateInstance(matchingType, @params) as T;
+            return matchingType == null
+                ? default
+                : Activator.CreateInstance(
+                    matchingType,
+                    BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.Instance,
+                    null,
+                    @params,
+                    CultureInfo.InvariantCulture
+                ) as T;
         }
 
         public static T CreateObject<T>(string typeName, params object[] @params) where T : class
@@ -78,6 +88,25 @@ namespace TPUM.Shared.Data
                 .FirstOrDefault();
 
             return matchingType == null ? default : Activator.CreateInstance(matchingType, @params) as T;
+        }
+        public static object CreateObject(Type type, params object[] @params)
+        {
+            Type matchingType = typeof(DataFactory)
+                .Assembly
+                .GetTypes()
+                .Where(t => type.IsAssignableFrom(t)
+                    && !t.IsAbstract
+                    && !t.IsInterface)
+                .FirstOrDefault();
+            return matchingType == null
+               ? default
+               : Activator.CreateInstance(
+                   matchingType,
+                   BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.Instance,
+                   null,
+                   @params,
+                   CultureInfo.InvariantCulture
+               );
         }
     }
 }

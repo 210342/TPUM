@@ -24,7 +24,7 @@ namespace TPUM.Shared.LogicTests
         internal class BookTestObject : IBook
         {
             public string Title { get; set; }
-            public List<IAuthor> Authors { get; set; }
+            public List<IAuthor> Authors { get; set; } = new List<IAuthor>();
             public int Id { get; set; }
         }
         [Fact]
@@ -326,7 +326,7 @@ namespace TPUM.Shared.LogicTests
         {
             for (int i = startingId; i < startingId + count; ++i)
             {
-                IEntity entity = Activator.CreateInstance(entityType) as IEntity;
+                IEntity entity = DataFactory.CreateObject(entityType) as IEntity;
                 entity.Id = i;
                 repository.AddEntity(entity);
             }

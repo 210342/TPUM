@@ -18,13 +18,13 @@ namespace TPUM.Shared.Data
         public IReadOnlyCollection<IBook> Books => _books;
         public IReadOnlyCollection<IAuthor> Authors => _authors;
 
-        public DataContext()
+        internal DataContext()
         {
             _authors.CollectionChanged += CollectionChanged;
             _books.CollectionChanged += CollectionChanged;
         }
 
-        public DataContext(List<Author> authors, List<Book> books) : this()
+        internal DataContext(List<Author> authors, List<Book> books) : this()
         {
             authors?.ForEach(a => _authors.Add(a));
             books?.ForEach(b => _books.Add(b));
