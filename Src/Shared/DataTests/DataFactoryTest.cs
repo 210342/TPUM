@@ -12,7 +12,6 @@ namespace TPUM.Shared.DataTests
     {
         public static IEnumerable<object[]> TypesToTest()
         {
-            //yield return new[] { typeof(IRepository), typeof(Repository) };
             yield return new[] { typeof(IDataContext), typeof(DataContext) };
             yield return new[] { typeof(IBook), typeof(Book) };
             yield return new[] { typeof(IAuthor), typeof(Author) };
