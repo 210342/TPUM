@@ -1,8 +1,8 @@
 ﻿using System;
 using System.Threading;
 using System.Threading.Tasks;
-using TPUM.Shared.Data.Core;
 using TPUM.Shared.Data.Entities;
+using TPUM.Shared.Logic.Core;
 
 namespace TPUM.Shared.Logic
 {

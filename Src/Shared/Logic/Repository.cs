@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using TPUM.Shared.Data;
 using TPUM.Shared.Data.Core;
 using TPUM.Shared.Data.Entities;
+using TPUM.Shared.Logic.Core;
 
 namespace TPUM.Shared.Logic
 {
@@ -21,7 +22,7 @@ namespace TPUM.Shared.Logic
         public Repository(IDataContext dataContext)
         {
             // TODO: this assertion is no longer needed
-            _dataContext = dataContext as IDataContext ?? throw new ArgumentNullException(nameof(dataContext));
+            _dataContext = dataContext ?? throw new ArgumentNullException(nameof(dataContext));
             _dataContextSubscription = _dataContext.Subscribe(this);
         }
 

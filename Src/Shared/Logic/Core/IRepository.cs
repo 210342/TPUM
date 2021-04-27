@@ -1,9 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using TPUM.Shared.Data.Core;
 using TPUM.Shared.Data.Entities;
 
-namespace TPUM.Shared.Data.Core
+namespace TPUM.Shared.Logic.Core
 {
     public interface IRepository : IObservable<IEntity>, IDisposable
     {

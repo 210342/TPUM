@@ -4,6 +4,7 @@ using System.Linq;
 using TPUM.Shared.Data;
 using TPUM.Shared.Data.Core;
 using TPUM.Shared.Data.Entities;
+using TPUM.Shared.Logic.Core;
 
 namespace TPUM.Shared.ViewModel
 {
@@ -45,7 +46,6 @@ namespace TPUM.Shared.ViewModel
         public Command AddAuthorCommand { get; private set; }
 
         #endregion
-
         public StockViewModel(IDispatcher dispatcher) : this(DataFactory.CreateObject<IRepository>(), dispatcher) { }
 
         public StockViewModel(IRepository repository, IDispatcher dispatcher) : base(dispatcher)

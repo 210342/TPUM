@@ -8,6 +8,7 @@ using TPUM.Shared.Data;
 using TPUM.Shared.Data.Entities;
 using TPUM.Shared.Logic;
 using Xunit;
+using TPUM.Shared.Logic.Core;
 
 namespace TPUM.Shared.LogicTests
 {
