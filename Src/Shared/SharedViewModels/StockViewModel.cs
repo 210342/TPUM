@@ -1,11 +1,10 @@
 ﻿using System;
 using System.Collections.ObjectModel;
 using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
 using TPUM.Shared.Data;
 using TPUM.Shared.Data.Core;
 using TPUM.Shared.Data.Entities;
+using TPUM.Shared.Logic.Core;
 
 namespace TPUM.Shared.ViewModel
 {
@@ -13,7 +12,6 @@ namespace TPUM.Shared.ViewModel
     {
         private readonly IRepository _repository;
         private readonly IDisposable _socketSubscription;
-        private readonly Random _rng = new Random();
 
         #region Observable properties
 
@@ -48,7 +46,6 @@ namespace TPUM.Shared.ViewModel
         public Command AddAuthorCommand { get; private set; }
 
         #endregion
-
         public StockViewModel(IDispatcher dispatcher) : this(DataFactory.CreateObject<IRepository>(), dispatcher) { }
 
         public StockViewModel(IRepository repository, IDispatcher dispatcher) : base(dispatcher)
@@ -57,49 +54,9 @@ namespace TPUM.Shared.ViewModel
             _socketSubscription = _repository.Subscribe(this);
             _repository.GetAuthors().ForEach(a => Authors.Add(new AuthorViewModel(a)));
             _repository.GetBooks().ForEach(b => Books.Add(new BookViewModel(b)));
-            AddAuthorCommand = new Command(AddAuthor);
-            Task.Run(() =>
-            {
-                while (true)
-                {
-                    Thread.Sleep(5000);
-                    int id;
-                    do
-                    {
-                        id = _rng.Next(5000);
-                    }
-                    while (_repository.GetBookById(id) != null);
-                    IBook newBook = DataFactory.CreateObject<IBook>();
-                    newBook.Id = id;
-                    newBook.Title = $"{id} - {nameof(IBook.Title)}";
-                    _repository.AddBook(newBook);
-                }
-            });
+            AddAuthorCommand = new Command((object args) => Logic.Logic.AddAuthor(_repository));
+            Logic.Logic.AddBook(_repository);
         }
-
-        #region Command implementations
-
-        public void AddAuthor(object args)
-        {
-            Task.Run(() =>
-            {
-                int id;
-                do
-                {
-                    id = _rng.Next(5000);
-                }
-                while (_repository.GetAuthorById(id) != null);
-
-                IAuthor newAuthor = DataFactory.CreateObject<IAuthor>();
-                newAuthor.Id = id;
-                newAuthor.FirstName = $"{id} - {nameof(IAuthor.FirstName)}";
-                newAuthor.LastName = $"{id} - {nameof(IAuthor.LastName)}";
-                newAuthor.NickName = $"{id} - {nameof(IAuthor.NickName)}";
-                _repository.AddAuthor(newAuthor);
-            });
-        }
-
-        #endregion
 
         #region IObserver
 

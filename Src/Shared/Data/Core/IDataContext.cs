@@ -8,5 +8,11 @@ namespace TPUM.Shared.Data.Core
     {
         IReadOnlyCollection<IBook> Books { get; }
         IReadOnlyCollection<IAuthor> Authors { get; }
+        void AddAuthor(IAuthor author);
+        void AddBook(IBook book);
+        void ClearAuthors();
+        void ClearBooks();
+        void UpdateBooks(List<IBook> books);
+        void UpdateAuthors(List<IAuthor> authors);
     }
 }

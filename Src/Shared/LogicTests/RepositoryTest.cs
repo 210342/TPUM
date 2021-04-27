@@ -1,17 +1,33 @@
-﻿using Moq;
+using Moq;
 using System;
 using System.Collections.Generic;
 using System.Reflection;
 using System.Threading.Tasks;
-using TPUM.Shared.Data;
 using TPUM.Shared.Data.Core;
+using TPUM.Shared.Data;
 using TPUM.Shared.Data.Entities;
+using TPUM.Shared.Logic;
 using Xunit;
+using TPUM.Shared.Logic.Core;
 
-namespace TPUM.Shared.DataTests
+namespace TPUM.Shared.LogicTests
 {
     public class RepositoryTest
     {
+        internal class AuthorTestObject : IAuthor
+        {
+            public string FirstName { get; set; }
+            public string LastName { get; set; }
+            public string NickName { get; set; }
+            public List<IBook> Books { get; set; } = new List<IBook>();
+            public int Id { get; set; }
+        }
+        internal class BookTestObject : IBook
+        {
+            public string Title { get; set; }
+            public List<IAuthor> Authors { get; set; } = new List<IAuthor>();
+            public int Id { get; set; }
+        }
         [Fact]
         public void ConstructorTest_NullParameter()
         {
@@ -21,11 +37,11 @@ namespace TPUM.Shared.DataTests
         [Fact]
         public void ConstructorTest_NotNullParameter()
         {
-            Repository sut = new(DataContext.GetExampleContext());
-            DataContext context = sut
+            Repository sut = new(DataFactory.GetExampleContext());
+            IDataContext context = sut
                 .GetType()
                 .GetField("_dataContext", BindingFlags.NonPublic | BindingFlags.Instance)
-                ?.GetValue(sut) as DataContext;
+                ?.GetValue(sut) as IDataContext;
             IDisposable subscription = sut
                 .GetType()
                 .GetField("_dataContextSubscription", BindingFlags.NonPublic | BindingFlags.Instance)
@@ -39,7 +55,7 @@ namespace TPUM.Shared.DataTests
         [Fact]
         public void GetBooksTest()
         {
-            Repository sut = new(DataContext.GetExampleContext());
+            Repository sut = new(DataFactory.GetExampleContext());
             List<IBook> books = sut.GetBooks();
             Assert.Equal(3, books.Count);
         }
@@ -47,7 +63,7 @@ namespace TPUM.Shared.DataTests
         [Fact]
         public void GetAuthorsTest()
         {
-            Repository sut = new(DataContext.GetExampleContext());
+            Repository sut = new(DataFactory.GetExampleContext());
             List<IAuthor> authors = sut.GetAuthors();
             Assert.Equal(2, authors.Count);
         }
@@ -55,7 +71,7 @@ namespace TPUM.Shared.DataTests
         [Fact]
         public async Task GetBooksAsyncTest()
         {
-            Repository sut = new(DataContext.GetExampleContext());
+            Repository sut = new(DataFactory.GetExampleContext());
             List<IBook> books = await sut.GetBooksAsync();
             Assert.Equal(3, books.Count);
         }
@@ -63,7 +79,7 @@ namespace TPUM.Shared.DataTests
         [Fact]
         public async Task GetAuthorsAsyncTest()
         {
-            Repository sut = new(DataContext.GetExampleContext());
+            Repository sut = new(DataFactory.GetExampleContext());
             List<IAuthor> authors = await sut.GetAuthorsAsync();
             Assert.Equal(2, authors.Count);
         }
@@ -72,7 +88,7 @@ namespace TPUM.Shared.DataTests
         public void GetBookByIdTest()
         {
             int id = 4;
-            Repository sut = new(DataContext.GetExampleContext());
+            Repository sut = new(DataFactory.GetExampleContext());
             IBook book = sut.GetBookById(id);
             Assert.NotNull(book);
             Assert.Equal(id, book.Id);
@@ -82,7 +98,7 @@ namespace TPUM.Shared.DataTests
         public void GetAuthorByIdTest()
         {
             int id = 2;
-            Repository sut = new(DataContext.GetExampleContext());
+            Repository sut = new(DataFactory.GetExampleContext());
             IAuthor author = sut.GetAuthorById(id);
             Assert.NotNull(author);
             Assert.Equal(id, author.Id);
@@ -92,11 +108,11 @@ namespace TPUM.Shared.DataTests
         public void UpdateAuthorsTest()
         {
             int subscriptionRaisedCount = 0;
-            Mock<Repository> mock = new(() => new Repository(DataContext.GetExampleContext()));
+            Mock<Repository> mock = new(() => new Repository(DataFactory.GetExampleContext()));
             mock.CallBase = true;
             Repository sut = mock.Object;
-            mock.Setup(repo => repo.OnNext(It.IsAny<Entity>())).Callback(() => ++subscriptionRaisedCount);
-            sut.UpdateAuthors(new List<IAuthor>() { new Author() { Id = 6, NickName = "Homer" } });
+            mock.Setup(repo => repo.OnNext(It.IsAny<IEntity>())).Callback(() => ++subscriptionRaisedCount);
+            sut.UpdateAuthors(new List<IAuthor>() { new AuthorTestObject() { Id = 6, NickName = "Homer" } });
             Assert.Single(sut.GetAuthors());
             Assert.Equal(1, subscriptionRaisedCount);
         }
@@ -105,11 +121,11 @@ namespace TPUM.Shared.DataTests
         public void UpdateBooksTest()
         {
             int subscriptionRaisedCount = 0;
-            Mock<Repository> mock = new(() => new Repository(DataContext.GetExampleContext()));
+            Mock<Repository> mock = new(() => new Repository(DataFactory.GetExampleContext()));
             mock.CallBase = true;
             Repository sut = mock.Object;
-            mock.Setup(repo => repo.OnNext(It.IsAny<Entity>())).Callback(() => ++subscriptionRaisedCount);
-            sut.UpdateBooks(new List<IBook>() { new Book() { Id = 7, Title = "Iliad" } });
+            mock.Setup(repo => repo.OnNext(It.IsAny<IEntity>())).Callback(() => ++subscriptionRaisedCount);
+            sut.UpdateBooks(new List<IBook>() { new BookTestObject() { Id = 7, Title = "Iliad" } });
             Assert.Single(sut.GetBooks());
             Assert.Equal(1, subscriptionRaisedCount);
         }
@@ -117,7 +133,7 @@ namespace TPUM.Shared.DataTests
         [Fact]
         public void AddEntityNullTest()
         {
-            Repository sut = new(new DataContext());
+            Repository sut = new(DataFactory.CreateObject<IDataContext>());
             sut.AddEntity(null);
             Assert.Empty(sut.GetAuthors());
             Assert.Empty(sut.GetBooks());
@@ -126,7 +142,7 @@ namespace TPUM.Shared.DataTests
         [Fact]
         public void AddAuthorNullTest()
         {
-            Repository sut = new(new DataContext());
+            Repository sut = new(DataFactory.CreateObject<IDataContext>());
             IAuthor returned = sut.AddAuthor(null);
             Assert.Null(returned);
             Assert.Empty(sut.GetAuthors());
@@ -136,7 +152,7 @@ namespace TPUM.Shared.DataTests
         [Fact]
         public void AddBookNullTest()
         {
-            Repository sut = new(new DataContext());
+            Repository sut = new(DataFactory.CreateObject<IDataContext>());
             IBook returned = sut.AddBook(null);
             Assert.Null(returned);
             Assert.Empty(sut.GetAuthors());
@@ -147,11 +163,11 @@ namespace TPUM.Shared.DataTests
         public void AddEntityBookTest()
         {
             int subscriptionRaisedCount = 0;
-            Mock<Repository> mock = new(() => new Repository(new DataContext()));
+            Mock<Repository> mock = new(() => new Repository(DataFactory.CreateObject<IDataContext>()));
             mock.CallBase = true;
             Repository sut = mock.Object;
-            mock.Setup(repo => repo.OnNext(It.IsAny<Entity>())).Callback(() => ++subscriptionRaisedCount);
-            sut.AddEntity(new Book() { Id = 7, Title = "Iliad" });
+            mock.Setup(repo => repo.OnNext(It.IsAny<IEntity>())).Callback(() => ++subscriptionRaisedCount);
+            sut.AddEntity(new BookTestObject() { Id = 7, Title = "Iliad" });
             Assert.Single(sut.GetBooks());
             Assert.Equal(1, subscriptionRaisedCount);
         }
@@ -160,13 +176,13 @@ namespace TPUM.Shared.DataTests
         public void AddEntityBookWithAuthorsTest()
         {
             int subscriptionRaisedCount = 0;
-            Mock<Repository> mock = new(() => new Repository(new DataContext()));
+            Mock<Repository> mock = new(() => new Repository(DataFactory.CreateObject<IDataContext>()));
             mock.CallBase = true;
             Repository sut = mock.Object;
-            mock.Setup(repo => repo.OnNext(It.IsAny<Entity>())).Callback(() => ++subscriptionRaisedCount);
-            Author author1 = new() { Id = 8, NickName = "A" };
-            Author author2 = new() { Id = 9, NickName = "B" };
-            Book book = new() { Id = 10, Title = "C", Authors = new List<IAuthor>() { author1, author2 } };
+            mock.Setup(repo => repo.OnNext(It.IsAny<IEntity>())).Callback(() => ++subscriptionRaisedCount);
+            AuthorTestObject author1 = new() { Id = 8, NickName = "A" };
+            AuthorTestObject author2 = new() { Id = 9, NickName = "B" };
+            BookTestObject book = new() { Id = 10, Title = "C", Authors = new List<IAuthor>() { author1, author2 } };
             author1.Books.Add(book);
             author2.Books.Add(book);
             sut.AddEntity(book);
@@ -178,11 +194,11 @@ namespace TPUM.Shared.DataTests
         public void AddBookTest()
         {
             int subscriptionRaisedCount = 0;
-            Mock<Repository> mock = new(() => new Repository(new DataContext()));
+            Mock<Repository> mock = new(() => new Repository(DataFactory.CreateObject<IDataContext>()));
             mock.CallBase = true;
             Repository sut = mock.Object;
-            mock.Setup(repo => repo.OnNext(It.IsAny<Entity>())).Callback(() => ++subscriptionRaisedCount);
-            sut.AddBook(new Book() { Id = 7, Title = "Iliad" });
+            mock.Setup(repo => repo.OnNext(It.IsAny<IEntity>())).Callback(() => ++subscriptionRaisedCount);
+            sut.AddBook(new BookTestObject() { Id = 7, Title = "Iliad" });
             Assert.Single(sut.GetBooks());
             Assert.Equal(1, subscriptionRaisedCount);
         }
@@ -191,13 +207,13 @@ namespace TPUM.Shared.DataTests
         public void AddBookWithAuthorsTest()
         {
             int subscriptionRaisedCount = 0;
-            Mock<Repository> mock = new(() => new Repository(new DataContext()));
+            Mock<Repository> mock = new(() => new Repository(DataFactory.CreateObject<IDataContext>()));
             mock.CallBase = true;
             Repository sut = mock.Object;
-            mock.Setup(repo => repo.OnNext(It.IsAny<Entity>())).Callback(() => ++subscriptionRaisedCount);
-            Author author1 = new() { Id = 8, NickName = "A" };
-            Author author2 = new() { Id = 9, NickName = "B" };
-            Book book = new() { Id = 10, Title = "C", Authors = new List<IAuthor>() { author1, author2 } };
+            mock.Setup(repo => repo.OnNext(It.IsAny<IEntity>())).Callback(() => ++subscriptionRaisedCount);
+            AuthorTestObject author1 = new() { Id = 8, NickName = "A" };
+            AuthorTestObject author2 = new() { Id = 9, NickName = "B" };
+            BookTestObject book = new() { Id = 10, Title = "C", Authors = new List<IAuthor>() { author1, author2 } };
             author1.Books.Add(book);
             author2.Books.Add(book);
             sut.AddBook(book);
@@ -209,11 +225,11 @@ namespace TPUM.Shared.DataTests
         public void AddEntityAuthorTest()
         {
             int subscriptionRaisedCount = 0;
-            Mock<Repository> mock = new(() => new Repository(new DataContext()));
+            Mock<Repository> mock = new(() => new Repository(DataFactory.CreateObject<IDataContext>()));
             mock.CallBase = true;
             Repository sut = mock.Object;
-            mock.Setup(repo => repo.OnNext(It.IsAny<Entity>())).Callback(() => ++subscriptionRaisedCount);
-            sut.AddEntity(new Author() { Id = 11, FirstName = "D" });
+            mock.Setup(repo => repo.OnNext(It.IsAny<IEntity>())).Callback(() => ++subscriptionRaisedCount);
+            sut.AddEntity(new AuthorTestObject() { Id = 11, FirstName = "D" });
             Assert.Single(sut.GetAuthors());
             Assert.Equal(1, subscriptionRaisedCount);
         }
@@ -222,13 +238,13 @@ namespace TPUM.Shared.DataTests
         public void AddEntityAuthorWithBooksTest()
         {
             int subscriptionRaisedCount = 0;
-            Mock<Repository> mock = new(() => new Repository(new DataContext()));
+            Mock<Repository> mock = new(() => new Repository(DataFactory.CreateObject<IDataContext>()));
             mock.CallBase = true;
             Repository sut = mock.Object;
-            mock.Setup(repo => repo.OnNext(It.IsAny<Entity>())).Callback(() => ++subscriptionRaisedCount);
-            Book book1 = new() { Id = 12, Title = "E" };
-            Book book2 = new() { Id = 13, Title = "F" };
-            Author author = new() { Id = 14, LastName = "G", Books = new List<IBook>() { book1, book2 } };
+            mock.Setup(repo => repo.OnNext(It.IsAny<IEntity>())).Callback(() => ++subscriptionRaisedCount);
+            BookTestObject book1 = new() { Id = 12, Title = "E" };
+            BookTestObject book2 = new() { Id = 13, Title = "F" };
+            AuthorTestObject author = new() { Id = 14, LastName = "G", Books = new List<IBook>() { book1, book2 } };
             book1.Authors.Add(author);
             book1.Authors.Add(author);
             sut.AddEntity(author);
@@ -240,11 +256,11 @@ namespace TPUM.Shared.DataTests
         public void AddAuthorTest()
         {
             int subscriptionRaisedCount = 0;
-            Mock<Repository> mock = new(() => new Repository(new DataContext()));
+            Mock<Repository> mock = new(() => new Repository(DataFactory.CreateObject<IDataContext>()));
             mock.CallBase = true;
             Repository sut = mock.Object;
-            mock.Setup(repo => repo.OnNext(It.IsAny<Entity>())).Callback(() => ++subscriptionRaisedCount);
-            sut.AddAuthor(new Author() { Id = 11, FirstName = "D" });
+            mock.Setup(repo => repo.OnNext(It.IsAny<IEntity>())).Callback(() => ++subscriptionRaisedCount);
+            sut.AddAuthor(new AuthorTestObject() { Id = 11, FirstName = "D" });
             Assert.Single(sut.GetAuthors());
             Assert.Equal(1, subscriptionRaisedCount);
         }
@@ -253,13 +269,13 @@ namespace TPUM.Shared.DataTests
         public void AddAuthorWithBooksTest()
         {
             int subscriptionRaisedCount = 0;
-            Mock<Repository> mock = new(() => new Repository(new DataContext()));
+            Mock<Repository> mock = new(() => new Repository(DataFactory.CreateObject<IDataContext>()));
             mock.CallBase = true;
             Repository sut = mock.Object;
-            mock.Setup(repo => repo.OnNext(It.IsAny<Entity>())).Callback(() => ++subscriptionRaisedCount);
-            Book book1 = new() { Id = 12, Title = "E" };
-            Book book2 = new() { Id = 13, Title = "F" };
-            Author author = new() { Id = 14, LastName = "G", Books = new List<IBook>() { book1, book2 } };
+            mock.Setup(repo => repo.OnNext(It.IsAny<IEntity>())).Callback(() => ++subscriptionRaisedCount);
+            BookTestObject book1 = new() { Id = 12, Title = "E" };
+            BookTestObject book2 = new() { Id = 13, Title = "F" };
+            AuthorTestObject author = new() { Id = 14, LastName = "G", Books = new List<IBook>() { book1, book2 } };
             book1.Authors.Add(author);
             book1.Authors.Add(author);
             sut.AddAuthor(author);
@@ -270,8 +286,8 @@ namespace TPUM.Shared.DataTests
         [Fact]
         public void AddExistingAuthorTest()
         {
-            Repository sut = new(DataContext.GetExampleContext());
-            Author author = new() { Id = 2 };
+            Repository sut = new(DataFactory.GetExampleContext());
+            AuthorTestObject author = new() { Id = 2 };
             int authorCount = sut.GetAuthors().Count;
             IAuthor returned = sut.AddAuthor(author);
             Assert.Same(author, returned);
@@ -281,8 +297,8 @@ namespace TPUM.Shared.DataTests
         [Fact]
         public void AddExistingBookTest()
         {
-            Repository sut = new(DataContext.GetExampleContext());
-            Book book = new() { Id = 1 };
+            Repository sut = new(DataFactory.GetExampleContext());
+            BookTestObject book = new() { Id = 1 };
             int bookCount = sut.GetBooks().Count;
             IBook returned = sut.AddBook(book);
             Assert.Same(book, returned);
@@ -293,17 +309,17 @@ namespace TPUM.Shared.DataTests
         public void DisposeTest()
         {
             int subscriptionRaisedCount = 0;
-            Mock<Repository> mock = new(() => new Repository(new DataContext()));
+            Mock<Repository> mock = new(() => new Repository(DataFactory.CreateObject<IDataContext>()));
             mock.CallBase = true;
             Repository sut = mock.Object;
-            mock.Setup(repo => repo.OnNext(It.IsAny<Entity>())).Callback(() => ++subscriptionRaisedCount);
-            sut.AddEntity(new Book() { Id = 15 });
+            mock.Setup(repo => repo.OnNext(It.IsAny<IEntity>())).Callback(() => ++subscriptionRaisedCount);
+            sut.AddEntity(new BookTestObject() { Id = 15 });
             Assert.Equal(1, subscriptionRaisedCount);
             sut.Dispose();
             sut.GetType()
                 .GetField("_dataContext", BindingFlags.NonPublic | BindingFlags.Instance)
-                ?.SetValue(sut, new DataContext());
-            sut.AddEntity(new Book() { Id = 16 });
+                ?.SetValue(sut, DataFactory.CreateObject<IDataContext>());
+            sut.AddEntity(new BookTestObject() { Id = 16 });
             Assert.Equal(1, subscriptionRaisedCount);
         }
 
@@ -311,19 +327,19 @@ namespace TPUM.Shared.DataTests
         {
             for (int i = startingId; i < startingId + count; ++i)
             {
-                Entity entity = Activator.CreateInstance(entityType) as Entity;
+                IEntity entity = DataFactory.CreateObject(entityType) as IEntity;
                 entity.Id = i;
                 repository.AddEntity(entity);
             }
         }
 
         [Theory]
-        [InlineData(typeof(Author))]
-        [InlineData(typeof(Book))]
+        [InlineData(typeof(IAuthor))]
+        [InlineData(typeof(IBook))]
         public async Task AddEntityConcurrentTest(Type entityType)
         {
             int entityCount = 2048;
-            Repository sut = new(new DataContext());
+            Repository sut = new(DataFactory.CreateObject<IDataContext>());
             Task[] tasks = new Task[]
             {
                 Task.Run(() => AddAuthorsInLoop(sut, entityType, 0, entityCount)),
@@ -332,7 +348,7 @@ namespace TPUM.Shared.DataTests
             await Task.WhenAll(tasks);
             Assert.Equal(
                 tasks.Length * entityCount,
-                entityType.Name == nameof(Author) ? sut.GetAuthors().Count : sut.GetBooks().Count
+                entityType.Name == nameof(IAuthor) ? sut.GetAuthors().Count : sut.GetBooks().Count
             );
         }
 
@@ -340,11 +356,11 @@ namespace TPUM.Shared.DataTests
         public async Task AddEntityDeadlockTest()
         {
             int entityCount = 2048;
-            Repository sut = new(new DataContext());
+            Repository sut = new(DataFactory.CreateObject<IDataContext>());
             Task[] tasks = new Task[]
             {
-                Task.Run(() => AddAuthorsInLoop(sut, typeof(Author), 0, entityCount)),
-                Task.Run(() => AddAuthorsInLoop(sut, typeof(Book), entityCount, entityCount)),
+                Task.Run(() => AddAuthorsInLoop(sut, typeof(IAuthor), 0, entityCount)),
+                Task.Run(() => AddAuthorsInLoop(sut, typeof(IBook), entityCount, entityCount)),
             };
             await Task.WhenAll(tasks);
             Assert.Equal(entityCount, sut.GetAuthors().Count);
