@@ -1,14 +1,13 @@
 ﻿using System;
 using System.Collections.ObjectModel;
 using System.Linq;
-using TPUM.Shared.Data;
-using TPUM.Shared.Data.Core;
-using TPUM.Shared.Data.Entities;
+using TPUM.Shared.Logic;
 using TPUM.Shared.Logic.Core;
+using TPUM.Shared.Logic.Dto;
 
 namespace TPUM.Shared.ViewModel
 {
-    public class StockViewModel : ViewModel, IObserver<IEntity>, IDisposable
+    public class StockViewModel : ViewModel, IObserver<IEntityDto>, IDisposable
     {
         private readonly IRepository _repository;
         private readonly IDisposable _socketSubscription;
@@ -46,7 +45,8 @@ namespace TPUM.Shared.ViewModel
         public Command AddAuthorCommand { get; private set; }
 
         #endregion
-        public StockViewModel(IDispatcher dispatcher) : this(DataFactory.CreateObject<IRepository>(), dispatcher) { }
+
+        public StockViewModel(IDispatcher dispatcher) : this(LogicFactory.GetExampleRepository(), dispatcher) { }
 
         public StockViewModel(IRepository repository, IDispatcher dispatcher) : base(dispatcher)
         {
@@ -54,8 +54,8 @@ namespace TPUM.Shared.ViewModel
             _socketSubscription = _repository.Subscribe(this);
             _repository.GetAuthors().ForEach(a => Authors.Add(new AuthorViewModel(a)));
             _repository.GetBooks().ForEach(b => Books.Add(new BookViewModel(b)));
-            AddAuthorCommand = new Command((object args) => Logic.Logic.AddAuthor(_repository));
-            Logic.Logic.AddBook(_repository);
+            AddAuthorCommand = new Command((object args) => ObjectCreation.AddAuthor(_repository));
+            ObjectCreation.AddBook(_repository);
         }
 
         #region IObserver
@@ -64,18 +64,18 @@ namespace TPUM.Shared.ViewModel
 
         public void OnError(Exception error) { }
 
-        public void OnNext(IEntity value)
+        public void OnNext(IEntityDto value)
         {
             _dispatcher?.Invoke(() =>
             {
-                if (value is IBook book)
+                if (value is IBookDto book)
                 {
-                    Books.Remove(Books.FirstOrDefault(b => b.Book.Id == book.Id));
+                    Books.Remove(Books.FirstOrDefault(b => b.Book.EntityId == book.EntityId));
                     Books.Add(new BookViewModel(book));
                 }
-                else if (value is IAuthor author)
+                else if (value is IAuthorDto author)
                 {
-                    Authors.Remove(Authors.FirstOrDefault(a => a.Author.Id == author.Id));
+                    Authors.Remove(Authors.FirstOrDefault(a => a.Author.EntityId == author.EntityId));
                     Authors.Add(new AuthorViewModel(author));
                 }
             });

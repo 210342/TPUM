@@ -10,9 +10,6 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Client", "Client", "{ABBB723B-12CB-48BC-A98E-829DC1370C77}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ViewModel", "Shared\SharedViewModels\ViewModel.csproj", "{E64D4CBE-747C-4457-8A6B-32E2DCEF088C}"
-	ProjectSection(ProjectDependencies) = postProject
-		{442D001C-7476-4607-80CC-BE578F70640D} = {442D001C-7476-4607-80CC-BE578F70640D}
-	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Shared", "Shared", "{F2506890-7AE2-42A0-B028-A9943F20B91A}"
 EndProject

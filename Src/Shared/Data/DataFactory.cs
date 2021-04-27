@@ -87,8 +87,17 @@ namespace TPUM.Shared.Data
                     && t.Name.Equals(typeName))
                 .FirstOrDefault();
 
-            return matchingType == null ? default : Activator.CreateInstance(matchingType, @params) as T;
+            return matchingType == null
+                ? default
+                : Activator.CreateInstance(
+                    matchingType,
+                    BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.Instance,
+                    null,
+                    @params,
+                    CultureInfo.InvariantCulture
+                ) as T;
         }
+
         public static object CreateObject(Type type, params object[] @params)
         {
             Type matchingType = typeof(DataFactory)
