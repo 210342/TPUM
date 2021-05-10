@@ -8,10 +8,9 @@ namespace TPUM.Shared.Logic.Core
     public interface IRepository : IObservable<IEntity>, IDisposable
     {
         IAuthor AddAuthor(IAuthor author);
-
         IBook AddBook(IBook book);
-
         object AddEntity(object entity);
+        IAuthor AddRandomAuthor();
 
         IEnumerable<IBook> GetBooks();
         Task<IEnumerable<IBook>> GetBooksAsync();
@@ -20,7 +19,6 @@ namespace TPUM.Shared.Logic.Core
         Task<IEnumerable<IAuthor>> GetAuthorsAsync();
 
         IAuthor GetAuthorById(int id);
-
         IBook GetBookById(int id);
 
         void UpdateBooks(List<IBook> books);

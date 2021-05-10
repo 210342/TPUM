@@ -7,6 +7,7 @@ using System.Net.WebSockets;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using TPUM.Server.Logic.Core;
 using TPUM.Shared.Logic;
 using TPUM.Shared.Logic.Core;
 using TPUM.Shared.Logic.WebModel;
@@ -18,18 +19,33 @@ namespace TPUM.Server.Logic
         private readonly IRepository _repository;
         private readonly IDisposable _dataContextSubscription;
         private readonly HttpListener _httpListener;
-        private readonly List<(Thread thread, HttpListenerWebSocketContext context)> _webSocketSubscribers = 
-            new List<(Thread thread, HttpListenerWebSocketContext context)>();
-        private ArraySegment<byte> _buffer;
+        private readonly List<IWebSocketResponseHandler> _webSocketSubscribers = new List<IWebSocketResponseHandler>();
+        private readonly Func<HttpListenerContext, IRepository, IHttpResponseHandler> _httpHandlerFactory;
+        private readonly Func<HttpListenerContext, CancellationToken, IWebSocketResponseHandler> _webSocketHandlerFactory;
 
         public Uri BaseUri { get; }
 
-        public HttpServer(Uri uri, IRepository repository) : this(uri, repository, Format.JSON, Encoding.UTF8) { }
+        public HttpServer(
+            Uri uri,
+            IRepository repository,
+            Func<HttpListenerContext, IRepository, IHttpResponseHandler> httpHandlerFactory,
+            Func<HttpListenerContext, CancellationToken, IWebSocketResponseHandler> webSocketHandlerFactory)
+            : this(uri, repository, httpHandlerFactory, webSocketHandlerFactory, Format.JSON, Encoding.UTF8) 
+        { }
 
-        public HttpServer(Uri uri, IRepository repository, Format format, Encoding encoding) : base(format, encoding)
+        public HttpServer(
+            Uri uri,
+            IRepository repository,
+            Func<HttpListenerContext, IRepository, IHttpResponseHandler> httpHandlerFactory,
+            Func<HttpListenerContext, CancellationToken, IWebSocketResponseHandler> webSocketHandlerFactory,
+            Format format,
+            Encoding encoding) 
+            : base(format, encoding)
         {
             _ = uri ?? throw new ArgumentNullException(nameof(uri));
             _repository = repository ?? throw new ArgumentNullException(nameof(repository));
+            _httpHandlerFactory = httpHandlerFactory ?? throw new ArgumentNullException(nameof(httpHandlerFactory));
+            _webSocketHandlerFactory = webSocketHandlerFactory ?? throw new ArgumentNullException(nameof(webSocketHandlerFactory));
             _dataContextSubscription = _repository.Subscribe(this);
             _httpListener = new HttpListener();
             BaseUri = uri;
@@ -74,104 +90,21 @@ namespace TPUM.Server.Logic
         {
             while (_httpListener.IsListening)
             {
-                await Task.Delay(5000).ConfigureAwait(false);
                 HttpListenerContext context = await _httpListener.GetContextAsync().ConfigureAwait(false);
                 if (context.Request.IsWebSocketRequest)
                 {
-                    if (_buffer == null)
-                    {
-                        _buffer = WebSocket.CreateServerBuffer(_bufferSize);
-                    }
-                    HttpListenerWebSocketContext wsContext = await context.AcceptWebSocketAsync(null).ConfigureAwait(false);
-                    Thread wsThread = new Thread(() => WebSocketLoop(wsContext, token));
-                    _webSocketSubscribers.Add((wsThread, wsContext));
-                    wsThread.Start();
+                    IWebSocketResponseHandler webSocket = _webSocketHandlerFactory.Invoke(context, token);
+                    webSocket.OnClosing += () => _webSocketSubscribers.Remove(webSocket);
+                    _webSocketSubscribers.Add(webSocket);
+                    webSocket.Handle();
                 }
                 else
                 {
-                    RespondHttp(context).Close();
-                }
-            }
-        }
-
-        private async void WebSocketLoop(HttpListenerWebSocketContext context, CancellationToken token)
-        {
-            ArraySegment<byte> buffer = WebSocket.CreateClientBuffer(_bufferSize, _bufferSize);
-            while (context.WebSocket.State == WebSocketState.Open)
-            {
-                if (token.IsCancellationRequested)
-                {
-                    (Thread thread, HttpListenerWebSocketContext context) tuple = _webSocketSubscribers.FirstOrDefault(t => t.context.Equals(context.SecWebSocketKey));
-                    _webSocketSubscribers.Remove(tuple);
-                    await context.WebSocket.CloseAsync(WebSocketCloseStatus.NormalClosure, string.Empty, token).ConfigureAwait(false);
-                    return;
-                }
-                try
-                {
-                    WebSocketReceiveResult response = await context.WebSocket.ReceiveAsync(buffer, token).ConfigureAwait(false);
-                    if (response.MessageType == WebSocketMessageType.Close)
+                    if (!_httpHandlerFactory.Invoke(context, _repository).Handle(_entityListSerializer))
                     {
-                        (Thread thread, HttpListenerWebSocketContext context) tuple = _webSocketSubscribers.FirstOrDefault(t => t.context.Equals(context.SecWebSocketKey));
-                        _webSocketSubscribers.Remove(tuple);
+                        Stop();
                     }
                 }
-                catch (WebSocketException ex)
-                {
-                    (Thread thread, HttpListenerWebSocketContext context) tuple = _webSocketSubscribers.FirstOrDefault(t => t.context.Equals(context.SecWebSocketKey));
-                    _webSocketSubscribers.Remove(tuple);
-                    if (context.WebSocket?.State == WebSocketState.Open)
-                    {
-                        await context.WebSocket?.CloseAsync(WebSocketCloseStatus.InternalServerError, ex.Message, token);
-                    }
-                }
-            }
-        }
-
-        private HttpListenerResponse RespondHttp(HttpListenerContext context)
-        {
-            HttpListenerResponse response = context.Response;
-            response.StatusCode = 200;
-            response.ContentType = "text/plain; charset=utf-8";
-            using (StreamWriter writer = new StreamWriter(response.OutputStream))
-            {
-                if (context.Request.RawUrl.ToLower().Contains("disconnect"))
-                {
-                    writer.WriteLine("Closing the server");
-                    Stop();
-                }
-                else if (context.Request.RawUrl.ToLower().Contains("books"))
-                {
-                    byte[] bytesToWrite = _entityListSerializer.Serialize(_repository.GetBooks());
-                    response.OutputStream.Write(bytesToWrite, 0, bytesToWrite.Length);
-                }
-                else if (context.Request.RawUrl.ToLower().Contains("authors"))
-                {
-                    byte[] bytesToWrite = _entityListSerializer.Serialize(_repository.GetAuthors());
-                    response.OutputStream.Write(bytesToWrite, 0, bytesToWrite.Length);
-                }
-                else if (context.Request.RawUrl.ToLower().Contains("add"))
-                {
-                    (_repository as Repository)?.AddRandomAuthor();
-                }
-            }
-            return response;
-        }
-
-        private IEnumerable<(Memory<byte> chunk, bool last)> SplitObjectIntoBufferSizedChunks(INetworkPacket entity)
-        {
-            byte[] fullArray = entity.Serialize(Serializer);
-            int chunksCount = (int)Math.Ceiling((decimal)fullArray.Length / _bufferSize);
-            byte[] appendedArray = new byte[chunksCount * _bufferSize];
-            Memory<byte> memory = appendedArray.AsMemory();
-            fullArray.CopyTo(memory);
-            if (fullArray.Length != memory.Length)
-            {
-                appendedArray[fullArray.Length] = 0x03;
-            }
-            for (int i = 0; i < chunksCount; ++i)
-            {
-                bool lastChunk = i == chunksCount - 1;
-                yield return (memory.Slice(i * _bufferSize, _bufferSize), lastChunk);
             }
         }
 
@@ -183,28 +116,9 @@ namespace TPUM.Server.Logic
 
         public void OnNext(IEntity value)
         {
-            if (_buffer == null || !_webSocketSubscribers.Any())
+            foreach (IWebSocketResponseHandler socket in _webSocketSubscribers)
             {
-                return;
-            }
-            INetworkPacket networkEntity = SharedLogicFactory.CreateObject<INetworkPacket>();
-            networkEntity.Source = BaseUri;
-            networkEntity.TypeIdentifier = value.GetType().GUID;
-            networkEntity.Entity = value;
-            foreach ((Memory<byte> chunk, bool last) in SplitObjectIntoBufferSizedChunks(networkEntity))
-            {
-                chunk.CopyTo(_buffer.Array.AsMemory());
-                foreach (HttpListenerWebSocketContext context in _webSocketSubscribers.Select(t => t.context))
-                {
-                    try
-                    {
-                        context.WebSocket?.SendAsync(_buffer, WebSocketMessageType.Binary, last, _cancellationTokenSource.Token);
-                    }
-                    catch (WebSocketException ex)
-                    {
-                        context.WebSocket?.CloseAsync(WebSocketCloseStatus.InternalServerError, ex.Message, _cancellationTokenSource.Token);
-                    }
-                }
+                socket.SendEntity(value, Serializer, BaseUri);
             }
         }
 
@@ -222,10 +136,9 @@ namespace TPUM.Server.Logic
                 if (disposing)
                 {
                     _dataContextSubscription.Dispose();
-                    _webSocketSubscribers.ForEach(tuple =>
+                    _webSocketSubscribers.ForEach(webSocket =>
                     {
-                        tuple.context.WebSocket.Dispose();
-                        tuple.thread.Join();
+                        webSocket.Dispose();
                     });
                     _webSocketSubscribers.Clear();
                     _httpListener?.Stop();

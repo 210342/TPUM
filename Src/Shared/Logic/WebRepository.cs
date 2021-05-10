@@ -30,6 +30,11 @@ namespace TPUM.Shared.Logic
             throw new NotImplementedException();
         }
 
+        public IAuthor AddRandomAuthor()
+        {
+            throw new NotImplementedException();
+        }
+
         public IAuthor GetAuthorById(int id)
         {
             throw new NotImplementedException();

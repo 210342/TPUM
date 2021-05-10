@@ -1,10 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using TPUM.Shared.Logic.Core;
 using TPUM.Shared.Logic.WebModel;
 
-namespace TPUM.Shared.Logic
+namespace TPUM.Shared.Logic.Core
 {
     public interface INetworkNode : IDisposable
     {

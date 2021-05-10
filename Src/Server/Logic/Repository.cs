@@ -196,9 +196,9 @@ namespace TPUM.Server.Logic
 
         #endregion
 
-        internal Data.Entities.IAuthor AddRandomAuthor()
+        public Shared.Logic.WebModel.IAuthor AddRandomAuthor()
         {
-            return ObjectCreation.AddAuthor(_dataContext);
+            return LogicFactory.MapEntityToWebModel(ObjectCreation.AddAuthor(_dataContext)) as Shared.Logic.WebModel.IAuthor;
         }
 
         internal void StartBackgroundWorker()

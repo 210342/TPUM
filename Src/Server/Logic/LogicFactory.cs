@@ -1,10 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net;
 using System.Text;
+using System.Threading;
 using TPUM.Server.Data;
 using TPUM.Server.Data.Entities;
-using TPUM.Shared.Logic;
+using TPUM.Server.Logic.Core;
 using TPUM.Shared.Logic.Core;
 
 namespace TPUM.Server.Logic
@@ -26,10 +28,16 @@ namespace TPUM.Server.Logic
             return new Repository(DataFactory.GetExampleContext());
         }
 
-        public static INetworkNode CreateNetworkNode(Uri uri, IRepository repository, Format format, Encoding encoding)
+        public static INetworkNode CreateNetworkNode(
+            Uri uri,
+            IRepository repository,
+            Func<HttpListenerContext, IRepository, IHttpResponseHandler> httpHandlerFactory,
+            Func<HttpListenerContext, CancellationToken, IWebSocketResponseHandler> webSocketHandlerFactory,
+            Format format,
+            Encoding encoding)
         {
             repository = repository ?? GetExampleRepository();
-            return new HttpServer(uri, repository, format, encoding);
+            return new HttpServer(uri, repository, httpHandlerFactory, webSocketHandlerFactory, format, encoding);
         }
 
         internal static Shared.Logic.WebModel.IEntity MapEntityToWebModel(Data.Core.IEntity entity)

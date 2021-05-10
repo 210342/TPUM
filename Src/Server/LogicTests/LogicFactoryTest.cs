@@ -124,6 +124,8 @@ namespace TPUM.Server.LogicTests
             INetworkNode node = LogicFactory.CreateNetworkNode(
                 uri,
                 LogicFactory.CreateRepository(),
+                (a, b) => null,
+                (a, b) => null,
                 Format.JSON,
                 Encoding.Default
             );
@@ -140,6 +142,8 @@ namespace TPUM.Server.LogicTests
             ArgumentNullException exception = Assert.Throws<ArgumentNullException>(() => LogicFactory.CreateNetworkNode(
                 null,
                 LogicFactory.CreateRepository(),
+                (a, b) => null,
+                (a, b) => null,
                 Format.JSON,
                 Encoding.Default
             ));
@@ -154,6 +158,8 @@ namespace TPUM.Server.LogicTests
             INetworkNode node = LogicFactory.CreateNetworkNode(
                 uri,
                 null,
+                (a, b) => null,
+                (a, b) => null,
                 Format.JSON,
                 Encoding.Default
             );
@@ -167,10 +173,42 @@ namespace TPUM.Server.LogicTests
             ArgumentNullException exception = Assert.Throws<ArgumentNullException>(() => LogicFactory.CreateNetworkNode(
                 uri,
                 LogicFactory.CreateRepository(),
+                (a, b) => null,
+                (a, b) => null,
                 Format.JSON,
                 null
             ));
             Assert.Equal("encoding", exception.ParamName);
+        }
+
+        [Fact]
+        public void CreateNetworkNodeTest_NullHttpFactory()
+        {
+            Uri uri = new("http://example.com");
+            ArgumentNullException exception = Assert.Throws<ArgumentNullException>(() => LogicFactory.CreateNetworkNode(
+                uri,
+                LogicFactory.CreateRepository(),
+                null,
+                (a, b) => null,
+                Format.JSON,
+                Encoding.Default
+            ));
+            Assert.Equal("httpHandlerFactory", exception.ParamName);
+        }
+
+        [Fact]
+        public void CreateNetworkNodeTest_NullWebSocketFactory()
+        {
+            Uri uri = new("http://example.com");
+            ArgumentNullException exception = Assert.Throws<ArgumentNullException>(() => LogicFactory.CreateNetworkNode(
+                uri,
+                LogicFactory.CreateRepository(),
+                (a, b) => null,
+                null,
+                Format.JSON,
+                Encoding.Default
+            ));
+            Assert.Equal("webSocketHandlerFactory", exception.ParamName);
         }
     }
 }
