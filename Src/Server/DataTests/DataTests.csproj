@@ -3,7 +3,7 @@
   <PropertyGroup>
     <TargetFramework>net5.0</TargetFramework>
     <IsPackable>false</IsPackable>
-    <RootNamespace>TPUM.Shared.LogicTests</RootNamespace>
+    <RootNamespace>TPUM.Server.DataTests</RootNamespace>
   </PropertyGroup>
 
   <ItemGroup>
@@ -22,6 +22,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Logic\Logic.csproj" />
+    <ProjectReference Include="..\Data\Data.csproj" />
   </ItemGroup>
 </Project>

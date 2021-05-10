@@ -1,31 +1,27 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using TPUM.Shared.Data.Core;
-using TPUM.Shared.Data.Entities;
-using TPUM.Shared.Logic.Dto;
+using TPUM.Shared.Logic.WebModel;
 
 namespace TPUM.Shared.Logic.Core
 {
-    public interface IRepository : IObservable<IEntityDto>, IDisposable
+    public interface IRepository : IObservable<IEntity>, IDisposable
     {
-        IAuthorDto AddAuthor(IAuthorDto author);
-
-        IBookDto AddBook(IBookDto book);
-
+        IAuthor AddAuthor(IAuthor author);
+        IBook AddBook(IBook book);
         object AddEntity(object entity);
+        IAuthor AddRandomAuthor();
 
-        List<IBookDto> GetBooks();
-        Task<List<IBookDto>> GetBooksAsync();
+        IEnumerable<IBook> GetBooks();
+        Task<IEnumerable<IBook>> GetBooksAsync();
 
-        List<IAuthorDto> GetAuthors();
-        Task<List<IAuthorDto>> GetAuthorsAsync();
+        IEnumerable<IAuthor> GetAuthors();
+        Task<IEnumerable<IAuthor>> GetAuthorsAsync();
 
-        IAuthorDto GetAuthorById(int id);
+        IAuthor GetAuthorById(int id);
+        IBook GetBookById(int id);
 
-        IBookDto GetBookById(int id);
-
-        void UpdateBooks(List<IBookDto> books);
-        void UpdateAuthors(List<IAuthorDto> authors);
+        void UpdateBooks(List<IBook> books);
+        void UpdateAuthors(List<IAuthor> authors);
     }
 }

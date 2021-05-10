@@ -1,0 +1,13 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netstandard2.0</TargetFramework>
+	<RootNamespace>TPUM.Client.Logic</RootNamespace>
+	<AssemblyName>ClientLogic</AssemblyName>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\Shared\Logic\Logic.csproj" />
+  </ItemGroup>
+
+</Project>
