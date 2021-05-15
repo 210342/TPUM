@@ -21,14 +21,14 @@ namespace TPUM.Server.DataTests
         [MemberData(nameof(TypesToTest))]
         public void GetInstanceTest(Type invokingType, Type expectedType)
         {
-            MethodInfo createObject = typeof(DataFactory).GetMethod(
+            MethodInfo createObject = typeof(Factory).GetMethod(
                 "CreateObject",
                 BindingFlags.Public | BindingFlags.Static,
                 Type.DefaultBinder,
                 new[] { typeof(object[]) },
                 Array.Empty<ParameterModifier>()
             );
-            var createObjectGeneric = createObject.MakeGenericMethod(invokingType);
+            MethodInfo createObjectGeneric = createObject.MakeGenericMethod(invokingType);
             object returned = createObjectGeneric.Invoke(null, new[] { Array.Empty<object>() });
             Assert.NotNull(returned);
             Assert.Equal(returned.GetType(), expectedType);

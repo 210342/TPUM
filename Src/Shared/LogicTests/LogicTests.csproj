@@ -23,5 +23,6 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Logic\Logic.csproj" />
+    <ProjectReference Include="..\NetworkModel\NetworkModel.csproj" />
   </ItemGroup>
 </Project>

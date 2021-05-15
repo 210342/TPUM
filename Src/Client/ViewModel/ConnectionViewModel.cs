@@ -1,6 +1,6 @@
 ﻿using System;
+using System.Text;
 using System.Windows.Input;
-using TPUM.Shared.Logic;
 using TPUM.Shared.Logic.Core;
 
 namespace TPUM.Client.ViewModel
@@ -43,8 +43,11 @@ namespace TPUM.Client.ViewModel
 
         public ConnectionViewModel(IDispatcher dispatcher) : base(dispatcher)
         {
-            _repository = SharedLogicFactory.CreateRepository();
-            Stock = new StockViewModel(_repository, dispatcher);
+            if (Uri.TryCreate(ServerAddress, UriKind.Absolute, out Uri uri))
+            {
+                _repository = Logic.Factory.CreateRepository(uri, Format.JSON, Encoding.Default);
+                Stock = new StockViewModel(_repository, dispatcher);
+            }
         }
     }
 }

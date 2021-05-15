@@ -5,8 +5,6 @@ using System.Net.WebSockets;
 using System.Threading;
 using System.Threading.Tasks;
 using TPUM.Server.Logic.Core;
-using TPUM.Shared.Logic;
-using TPUM.Shared.Logic.Core;
 using TPUM.Shared.Logic.WebModel;
 
 namespace TPUM.Server.WebPresentation
@@ -34,13 +32,9 @@ namespace TPUM.Server.WebPresentation
             Task.Run(WebSocketLoop);
         }
 
-        public bool SendEntity(IEntity entity, ISerializer<INetworkPacket> serializer, Uri sourceUri)
+        public bool SendEntity(INetworkPacket packet, Func<INetworkPacket, byte[]> serializer)
         {
-            INetworkPacket networkEntity = SharedLogicFactory.CreateObject<INetworkPacket>();
-            networkEntity.Source = sourceUri;
-            networkEntity.TypeIdentifier = entity.GetType().GUID;
-            networkEntity.Entity = entity;
-            foreach ((Memory<byte> chunk, bool last) in SplitObjectIntoBufferSizedChunks(networkEntity, serializer))
+            foreach ((Memory<byte> chunk, bool last) in SplitObjectIntoBufferSizedChunks(packet, serializer))
             {
                 chunk.CopyTo(_buffer.Array.AsMemory());
                 try
@@ -58,9 +52,9 @@ namespace TPUM.Server.WebPresentation
 
         private static IEnumerable<(Memory<byte> chunk, bool last)> SplitObjectIntoBufferSizedChunks(
             INetworkPacket entity,
-            ISerializer<INetworkPacket> serializer)
+            Func<INetworkPacket, byte[]> serializer)
         {
-            byte[] fullArray = entity.Serialize(serializer);
+            byte[] fullArray = serializer.Invoke(entity);
             int chunksCount = (int)Math.Ceiling((decimal)fullArray.Length / BUFFER_SIZE);
             byte[] appendedArray = new byte[chunksCount * BUFFER_SIZE];
             Memory<byte> memory = appendedArray.AsMemory();

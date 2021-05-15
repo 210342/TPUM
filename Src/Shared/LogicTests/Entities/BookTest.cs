@@ -1,8 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Text;
-using TPUM.Shared.Logic;
-using TPUM.Shared.Logic.Core;
 using TPUM.Shared.Logic.WebModel;
 using Xunit;
 
@@ -132,30 +129,6 @@ namespace TPUM.Shared.LogicTests.Entities
             Assert.Equal(book1.GetHashCode(), book2.GetHashCode());
             book2.Id = 2;
             Assert.NotEqual(book1.GetHashCode(), book2.GetHashCode());
-        }
-
-        [Theory]
-        [MemberData(nameof(NetworkPacketTest.SerializationParameters), MemberType = typeof(NetworkPacketTest))]
-        public void SerializationTest(Format format, Encoding encoding)
-        {
-            string name1 = "Name1";
-            Author author = new()
-            {
-                Id = 1,
-                FirstName = name1,
-                LastName = name1,
-                NickName = string.Empty
-            };
-            Book book = new()
-            {
-                Title = "title1",
-                Authors = new List<IAuthor>() { author }
-            };
-            author.Books.Add(book);
-            Serializer<Book> serializer = new(encoding, format, new[] { typeof(Author), typeof(Book) });
-            byte[] data = serializer.Serialize(book);
-            Book deserialized = serializer.Deserialize(data);
-            Assert.Equal(book, deserialized);
         }
     }
 }

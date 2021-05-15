@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.ObjectModel;
 using System.Linq;
-using TPUM.Shared.Logic;
 using TPUM.Shared.Logic.Core;
 using TPUM.Shared.Logic.WebModel;
 
@@ -46,7 +45,7 @@ namespace TPUM.Client.ViewModel
 
         #endregion
 
-        public StockViewModel(IDispatcher dispatcher) : this(SharedLogicFactory.CreateRepository(), dispatcher) { }
+        public StockViewModel(IDispatcher dispatcher) : this(null, dispatcher) { }
 
         public StockViewModel(IRepository repository, IDispatcher dispatcher) : base(dispatcher)
         {

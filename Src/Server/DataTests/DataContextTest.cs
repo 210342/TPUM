@@ -80,17 +80,18 @@ namespace TPUM.Server.DataTests
             {
                 Title = "title2",
             };
+            List<IBook> books1 = new() { book1, book2 };
             Author author1 = new()
             {
                 FirstName = "a",
                 LastName = "b",
                 NickName = "c",
-                Books = new List<IBook>() { book1, book2 },
+                Books = books1,
             };
             book1.Authors.Add(author1);
             book2.Authors.Add(author1);
-            List<Author> authors = new List<Author>() { author1 };
-            List<Book> books = new List<Book>() { book1, book2 };
+            List<Author> authors = new() { author1 };
+            List<Book> books = new() { book1, book2 };
             DataContext sut = CallPrivateConstructor(authors, books);
             Assert.NotNull(sut.Authors);
             Assert.NotNull(sut.Books);
@@ -126,8 +127,8 @@ namespace TPUM.Server.DataTests
             };
             book1.Authors.Add(author1);
             book2.Authors.Add(author1);
-            List<Author> authors = new List<Author>() { author1 };
-            List<Book> books = new List<Book>() { book1, book2 };
+            List<Author> authors = new() { author1 };
+            List<Book> books = new() { book1, book2 };
             DataContext sut = CallPrivateConstructor(authors, books);
             sut.Dispose();
             Assert.Empty(sut.Authors);

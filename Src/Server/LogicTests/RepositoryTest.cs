@@ -1,15 +1,14 @@
 using Moq;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
-using Xunit;
-using TPUM.Shared.Logic.Core;
-using System.Linq;
+using TPUM.Server.Data.Core;
 using TPUM.Server.Logic;
-using TPUM.Server.Data;
+using TPUM.Shared.Logic.Core;
 using TPUM.Shared.Logic.WebModel;
-using TPUM.Shared.Logic;
+using Xunit;
 
 namespace TPUM.Server.LogicTests
 {
@@ -39,7 +38,7 @@ namespace TPUM.Server.LogicTests
         [Fact]
         public void ConstructorTest_NotNullParameter()
         {
-            Repository sut = new(DataFactory.GetExampleContext());
+            Repository sut = new(Data.Factory.GetExampleContext());
             Data.Core.IDataContext context = sut
                 .GetType()
                 .GetField("_dataContext", BindingFlags.NonPublic | BindingFlags.Instance)
@@ -57,7 +56,7 @@ namespace TPUM.Server.LogicTests
         [Fact]
         public void GetBooksTest()
         {
-            Repository sut = new(DataFactory.GetExampleContext());
+            Repository sut = new(Data.Factory.GetExampleContext());
             IEnumerable<IBook> books = sut.GetBooks();
             Assert.Equal(3, books.Count());
         }
@@ -65,7 +64,7 @@ namespace TPUM.Server.LogicTests
         [Fact]
         public void GetAuthorsTest()
         {
-            Repository sut = new(DataFactory.GetExampleContext());
+            Repository sut = new(Data.Factory.GetExampleContext());
             IEnumerable<IAuthor> authors = sut.GetAuthors();
             Assert.Equal(2, authors.Count());
         }
@@ -73,7 +72,7 @@ namespace TPUM.Server.LogicTests
         [Fact]
         public async Task GetBooksAsyncTest()
         {
-            Repository sut = new(DataFactory.GetExampleContext());
+            Repository sut = new(Data.Factory.GetExampleContext());
             IEnumerable<IBook> books = await sut.GetBooksAsync();
             Assert.Equal(3, books.Count());
         }
@@ -81,7 +80,7 @@ namespace TPUM.Server.LogicTests
         [Fact]
         public async Task GetAuthorsAsyncTest()
         {
-            Repository sut = new(DataFactory.GetExampleContext());
+            Repository sut = new(Data.Factory.GetExampleContext());
             IEnumerable<IAuthor> authors = await sut.GetAuthorsAsync();
             Assert.Equal(2, authors.Count());
         }
@@ -90,7 +89,7 @@ namespace TPUM.Server.LogicTests
         public void GetBookByIdTest()
         {
             int id = 4;
-            Repository sut = new(DataFactory.GetExampleContext());
+            Repository sut = new(Data.Factory.GetExampleContext());
             IBook book = sut.GetBookById(id);
             Assert.NotNull(book);
             Assert.Equal(id, book.Id);
@@ -100,7 +99,7 @@ namespace TPUM.Server.LogicTests
         public void GetAuthorByIdTest()
         {
             int id = 2;
-            Repository sut = new(DataFactory.GetExampleContext());
+            Repository sut = new(Data.Factory.GetExampleContext());
             IAuthor author = sut.GetAuthorById(id);
             Assert.NotNull(author);
             Assert.Equal(id, author.Id);
@@ -110,7 +109,7 @@ namespace TPUM.Server.LogicTests
         public void UpdateAuthorsTest()
         {
             int subscriptionRaisedCount = 0;
-            Mock<Repository> mock = new(() => new Repository(DataFactory.GetExampleContext()));
+            Mock<Repository> mock = new(() => new Repository(Data.Factory.GetExampleContext()));
             mock.CallBase = true;
             Repository sut = mock.Object;
             mock.Setup(repo => repo.OnNext(It.IsAny<Data.Core.IEntity>())).Callback(() => ++subscriptionRaisedCount);
@@ -123,7 +122,7 @@ namespace TPUM.Server.LogicTests
         public void UpdateBooksTest()
         {
             int subscriptionRaisedCount = 0;
-            Mock<Repository> mock = new(() => new Repository(DataFactory.GetExampleContext()));
+            Mock<Repository> mock = new(() => new Repository(Data.Factory.GetExampleContext()));
             mock.CallBase = true;
             Repository sut = mock.Object;
             mock.Setup(repo => repo.OnNext(It.IsAny<Data.Core.IEntity>())).Callback(() => ++subscriptionRaisedCount);
@@ -135,7 +134,7 @@ namespace TPUM.Server.LogicTests
         [Fact]
         public void AddEntityNullTest()
         {
-            Repository sut = new(DataFactory.CreateObject<Data.Core.IDataContext>());
+            Repository sut = new(Data.Factory.CreateObject<Data.Core.IDataContext>());
             sut.AddEntity(null);
             Assert.Empty(sut.GetAuthors());
             Assert.Empty(sut.GetBooks());
@@ -144,7 +143,7 @@ namespace TPUM.Server.LogicTests
         [Fact]
         public void AddAuthorNullTest()
         {
-            Repository sut = new(DataFactory.CreateObject<Data.Core.IDataContext>());
+            Repository sut = new(Data.Factory.CreateObject<Data.Core.IDataContext>());
             IAuthor returned = sut.AddAuthor(null);
             Assert.Null(returned);
             Assert.Empty(sut.GetAuthors());
@@ -154,7 +153,7 @@ namespace TPUM.Server.LogicTests
         [Fact]
         public void AddBookNullTest()
         {
-            Repository sut = new(DataFactory.CreateObject<Data.Core.IDataContext>());
+            Repository sut = new(Data.Factory.CreateObject<Data.Core.IDataContext>());
             IBook returned = sut.AddBook(null);
             Assert.Null(returned);
             Assert.Empty(sut.GetAuthors());
@@ -165,7 +164,7 @@ namespace TPUM.Server.LogicTests
         public void AddEntityBookTest()
         {
             int subscriptionRaisedCount = 0;
-            Mock<Repository> mock = new(() => new Repository(DataFactory.CreateObject<Data.Core.IDataContext>()));
+            Mock<Repository> mock = new(() => new Repository(Data.Factory.CreateObject<Data.Core.IDataContext>()));
             mock.CallBase = true;
             Repository sut = mock.Object;
             mock.Setup(repo => repo.OnNext(It.IsAny<Data.Core.IEntity>())).Callback(() => ++subscriptionRaisedCount);
@@ -178,7 +177,7 @@ namespace TPUM.Server.LogicTests
         public void AddEntityBookWithAuthorsTest()
         {
             int subscriptionRaisedCount = 0;
-            Mock<Repository> mock = new(() => new Repository(DataFactory.CreateObject<Data.Core.IDataContext>()));
+            Mock<Repository> mock = new(() => new Repository(Data.Factory.CreateObject<Data.Core.IDataContext>()));
             mock.CallBase = true;
             Repository sut = mock.Object;
             mock.Setup(repo => repo.OnNext(It.IsAny<Data.Core.IEntity>())).Callback(() => ++subscriptionRaisedCount);
@@ -196,7 +195,7 @@ namespace TPUM.Server.LogicTests
         public void AddBookTest()
         {
             int subscriptionRaisedCount = 0;
-            Mock<Repository> mock = new(() => new Repository(DataFactory.CreateObject<Data.Core.IDataContext>()));
+            Mock<Repository> mock = new(() => new Repository(Data.Factory.CreateObject<Data.Core.IDataContext>()));
             mock.CallBase = true;
             Repository sut = mock.Object;
             mock.Setup(repo => repo.OnNext(It.IsAny<Data.Core.IEntity>())).Callback(() => ++subscriptionRaisedCount);
@@ -209,7 +208,7 @@ namespace TPUM.Server.LogicTests
         public void AddBookWithAuthorsTest()
         {
             int subscriptionRaisedCount = 0;
-            Mock<Repository> mock = new(() => new Repository(DataFactory.CreateObject<Data.Core.IDataContext>()));
+            Mock<Repository> mock = new(() => new Repository(Data.Factory.CreateObject<Data.Core.IDataContext>()));
             mock.CallBase = true;
             Repository sut = mock.Object;
             mock.Setup(repo => repo.OnNext(It.IsAny<Data.Core.IEntity>())).Callback(() => ++subscriptionRaisedCount);
@@ -227,7 +226,7 @@ namespace TPUM.Server.LogicTests
         public void AddEntityAuthorTest()
         {
             int subscriptionRaisedCount = 0;
-            Mock<Repository> mock = new(() => new Repository(DataFactory.CreateObject<Data.Core.IDataContext>()));
+            Mock<Repository> mock = new(() => new Repository(Data.Factory.CreateObject<Data.Core.IDataContext>()));
             mock.CallBase = true;
             Repository sut = mock.Object;
             mock.Setup(repo => repo.OnNext(It.IsAny<Data.Core.IEntity>())).Callback(() => ++subscriptionRaisedCount);
@@ -240,7 +239,7 @@ namespace TPUM.Server.LogicTests
         public void AddEntityAuthorWithBooksTest()
         {
             int subscriptionRaisedCount = 0;
-            Mock<Repository> mock = new(() => new Repository(DataFactory.CreateObject<Data.Core.IDataContext>()));
+            Mock<Repository> mock = new(() => new Repository(Data.Factory.CreateObject<Data.Core.IDataContext>()));
             mock.CallBase = true;
             Repository sut = mock.Object;
             mock.Setup(repo => repo.OnNext(It.IsAny<Data.Core.IEntity>())).Callback(() => ++subscriptionRaisedCount);
@@ -258,7 +257,7 @@ namespace TPUM.Server.LogicTests
         public void AddAuthorTest()
         {
             int subscriptionRaisedCount = 0;
-            Mock<Repository> mock = new(() => new Repository(DataFactory.CreateObject<Data.Core.IDataContext>()));
+            Mock<Repository> mock = new(() => new Repository(Data.Factory.CreateObject<Data.Core.IDataContext>()));
             mock.CallBase = true;
             Repository sut = mock.Object;
             mock.Setup(repo => repo.OnNext(It.IsAny<Data.Core.IEntity>())).Callback(() => ++subscriptionRaisedCount);
@@ -271,7 +270,7 @@ namespace TPUM.Server.LogicTests
         public void AddAuthorWithBooksTest()
         {
             int subscriptionRaisedCount = 0;
-            Mock<Repository> mock = new(() => new Repository(DataFactory.CreateObject<Data.Core.IDataContext>()));
+            Mock<Repository> mock = new(() => new Repository(Data.Factory.CreateObject<Data.Core.IDataContext>()));
             mock.CallBase = true;
             Repository sut = mock.Object;
             mock.Setup(repo => repo.OnNext(It.IsAny<Data.Core.IEntity>())).Callback(() => ++subscriptionRaisedCount);
@@ -288,7 +287,7 @@ namespace TPUM.Server.LogicTests
         [Fact]
         public void AddExistingAuthorTest()
         {
-            Repository sut = new(DataFactory.GetExampleContext());
+            Repository sut = new(Data.Factory.GetExampleContext());
             AuthorTestObject author = new() { Id = 2 };
             int authorCount = sut.GetAuthors().Count();
             IAuthor returned = sut.AddAuthor(author);
@@ -299,7 +298,7 @@ namespace TPUM.Server.LogicTests
         [Fact]
         public void AddExistingBookTest()
         {
-            Repository sut = new(DataFactory.GetExampleContext());
+            Repository sut = new(Data.Factory.GetExampleContext());
             BookTestObject book = new() { Id = 1 };
             int bookCount = sut.GetBooks().Count();
             IBook returned = sut.AddBook(book);
@@ -311,7 +310,7 @@ namespace TPUM.Server.LogicTests
         public void DisposeTest()
         {
             int subscriptionRaisedCount = 0;
-            Mock<Repository> mock = new(() => new Repository(DataFactory.CreateObject<Data.Core.IDataContext>()));
+            Mock<Repository> mock = new(() => new Repository(Data.Factory.CreateObject<Data.Core.IDataContext>()));
             mock.CallBase = true;
             Repository sut = mock.Object;
             mock.Setup(repo => repo.OnNext(It.IsAny<Data.Core.IEntity>())).Callback(() => ++subscriptionRaisedCount);
@@ -320,7 +319,7 @@ namespace TPUM.Server.LogicTests
             sut.Dispose();
             sut.GetType()
                 .GetField("_dataContext", BindingFlags.NonPublic | BindingFlags.Instance)
-                ?.SetValue(sut, DataFactory.CreateObject<IDataContext>());
+                ?.SetValue(sut, Data.Factory.CreateObject<IDataContext>());
             sut.AddEntity(new BookTestObject() { Id = 16 });
             Assert.Equal(1, subscriptionRaisedCount);
         }
@@ -329,7 +328,7 @@ namespace TPUM.Server.LogicTests
         {
             for (int i = startingId; i < startingId + count; ++i)
             {
-                IEntity entity = SharedLogicFactory.CreateObject(entityType) as IEntity;
+                Shared.Logic.WebModel.IEntity entity = Shared.Logic.Factory.CreateObject(entityType) as Shared.Logic.WebModel.IEntity;
                 entity.Id = i;
                 repository.AddEntity(entity);
             }
@@ -341,7 +340,7 @@ namespace TPUM.Server.LogicTests
         public async Task AddEntityConcurrentTest(Type entityType)
         {
             int entityCount = 2048;
-            Repository sut = new(DataFactory.CreateObject<Data.Core.IDataContext>());
+            Repository sut = new(Data.Factory.CreateObject<Data.Core.IDataContext>());
             Task[] tasks = new Task[]
             {
                 Task.Run(() => AddAuthorsInLoop(sut, entityType, 0, entityCount)),
@@ -358,7 +357,7 @@ namespace TPUM.Server.LogicTests
         public async Task AddEntityDeadlockTest()
         {
             int entityCount = 2048;
-            Repository sut = new(DataFactory.CreateObject<Data.Core.IDataContext>());
+            Repository sut = new(Data.Factory.CreateObject<Data.Core.IDataContext>());
             Task[] tasks = new Task[]
             {
                 Task.Run(() => AddAuthorsInLoop(sut, typeof(IAuthor), 0, entityCount)),

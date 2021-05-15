@@ -2,11 +2,8 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
-using TPUM.Server.Data;
 using TPUM.Server.Data.Entities;
 using TPUM.Server.Logic;
-using TPUM.Shared.Logic;
 using TPUM.Shared.Logic.Core;
 using Xunit;
 
@@ -33,7 +30,7 @@ namespace TPUM.Server.LogicTests
         [Fact]
         public void CreateEmptyRepository()
         {
-            IRepository repo = LogicFactory.CreateRepository();
+            IRepository repo = Factory.CreateRepository();
             Assert.NotNull(repo);
             Assert.Empty(repo.GetAuthors());
             Assert.Empty(repo.GetBooks());
@@ -42,7 +39,7 @@ namespace TPUM.Server.LogicTests
         [Fact]
         public void CreateExampleRepository()
         {
-            IRepository repo = LogicFactory.GetExampleRepository();
+            IRepository repo = Factory.GetExampleRepository();
             Assert.NotNull(repo);
             Assert.NotEmpty(repo.GetAuthors());
             Assert.NotEmpty(repo.GetBooks());
@@ -51,7 +48,7 @@ namespace TPUM.Server.LogicTests
         [Fact]
         public void CreateRepository_NullParams()
         {
-            IRepository repo = LogicFactory.CreateRepository(null, null);
+            IRepository repo = Factory.CreateRepository(null, null);
             Assert.NotNull(repo);
             Assert.Empty(repo.GetAuthors());
             Assert.Empty(repo.GetBooks());
@@ -70,7 +67,7 @@ namespace TPUM.Server.LogicTests
                 new Book() { Id = 1 },
                 new Book() { Id = 2, Authors = authors.OfType<IAuthor>().ToList() },
             };
-            IRepository repo = LogicFactory.CreateRepository(authors, books);
+            IRepository repo = Factory.CreateRepository(authors, books);
             Assert.NotNull(repo);
             Assert.Equal(authors.Count, repo.GetAuthors().Count());
             Assert.Equal(books.Count, repo.GetBooks().Count());
@@ -78,52 +75,12 @@ namespace TPUM.Server.LogicTests
         }
 
         [Fact]
-        public void CreateAuthorDtoForAuthor()
-        {
-            IAuthor author = DataFactory.CreateObject<IAuthor>();
-            author.Id = 1;
-            author.FirstName = "Firstname";
-            author.LastName = "Lastname";
-            author.NickName = "Nickname";
-            Shared.Logic.WebModel.IEntity entityDto = LogicFactory.MapEntityToWebModel(author);
-            Assert.NotNull(entityDto);
-            Assert.Equal(author.Id, entityDto.Id);
-            Shared.Logic.WebModel.IAuthor authorDto = entityDto as Shared.Logic.WebModel.IAuthor;
-            Assert.NotNull(authorDto);
-            Assert.Equal(author.Id, authorDto.Id);
-            Assert.Equal(author.FirstName, authorDto.FirstName);
-            Assert.Equal(author.LastName, authorDto.LastName);
-            Assert.Equal(author.NickName, authorDto.NickName);
-        }
-
-        [Fact]
-        public void CreateBookDtoForBook()
-        {
-            IBook book = DataFactory.CreateObject<IBook>();
-            book.Id = 1;
-            book.Title = "Firstname";
-            Shared.Logic.WebModel.IEntity entityDto = LogicFactory.MapEntityToWebModel(book);
-            Assert.NotNull(entityDto);
-            Assert.Equal(book.Id, entityDto.Id);
-            Shared.Logic.WebModel.IBook bookDto = entityDto as Shared.Logic.WebModel.IBook;
-            Assert.NotNull(bookDto);
-            Assert.Equal(book.Id, bookDto.Id);
-            Assert.Equal(book.Title, bookDto.Title);
-        }
-
-        [Fact]
-        public void CreateNullDto()
-        {
-            Assert.Null(LogicFactory.MapEntityToWebModel(null));
-        }
-
-        [Fact]
         public void CreateNetworkNodeTest_Server()
         {
             Uri uri = new("http://example.com");
-            INetworkNode node = LogicFactory.CreateNetworkNode(
+            INetworkNode node = Factory.CreateNetworkNode(
                 uri,
-                LogicFactory.CreateRepository(),
+                Factory.CreateRepository(),
                 (a, b) => null,
                 (a, b) => null,
                 Format.JSON,
@@ -132,16 +89,15 @@ namespace TPUM.Server.LogicTests
             Assert.NotNull(node);
             HttpServer server = node as HttpServer;
             Assert.NotNull(server);
-            Assert.NotNull(server.Serializer);
             Assert.Equal(uri, server.BaseUri);
         }
 
         [Fact]
         public void CreateNetworkNodeTest_NullUri()
         {
-            ArgumentNullException exception = Assert.Throws<ArgumentNullException>(() => LogicFactory.CreateNetworkNode(
+            ArgumentNullException exception = Assert.Throws<ArgumentNullException>(() => Factory.CreateNetworkNode(
                 null,
-                LogicFactory.CreateRepository(),
+                Factory.CreateRepository(),
                 (a, b) => null,
                 (a, b) => null,
                 Format.JSON,
@@ -154,8 +110,8 @@ namespace TPUM.Server.LogicTests
         public void CreateNetworkNodeTest_NullRepository()
         {
             Uri uri = new("http://example.com");
-            IRepository emptyRepo = LogicFactory.CreateRepository();
-            INetworkNode node = LogicFactory.CreateNetworkNode(
+            IRepository emptyRepo = Factory.CreateRepository();
+            INetworkNode node = Factory.CreateNetworkNode(
                 uri,
                 null,
                 (a, b) => null,
@@ -170,9 +126,9 @@ namespace TPUM.Server.LogicTests
         public void CreateNetworkNodeTest_NullEncoding()
         {
             Uri uri = new("http://example.com");
-            ArgumentNullException exception = Assert.Throws<ArgumentNullException>(() => LogicFactory.CreateNetworkNode(
+            ArgumentNullException exception = Assert.Throws<ArgumentNullException>(() => Factory.CreateNetworkNode(
                 uri,
-                LogicFactory.CreateRepository(),
+                Factory.CreateRepository(),
                 (a, b) => null,
                 (a, b) => null,
                 Format.JSON,
@@ -185,9 +141,9 @@ namespace TPUM.Server.LogicTests
         public void CreateNetworkNodeTest_NullHttpFactory()
         {
             Uri uri = new("http://example.com");
-            ArgumentNullException exception = Assert.Throws<ArgumentNullException>(() => LogicFactory.CreateNetworkNode(
+            ArgumentNullException exception = Assert.Throws<ArgumentNullException>(() => Factory.CreateNetworkNode(
                 uri,
-                LogicFactory.CreateRepository(),
+                Factory.CreateRepository(),
                 null,
                 (a, b) => null,
                 Format.JSON,
@@ -200,9 +156,9 @@ namespace TPUM.Server.LogicTests
         public void CreateNetworkNodeTest_NullWebSocketFactory()
         {
             Uri uri = new("http://example.com");
-            ArgumentNullException exception = Assert.Throws<ArgumentNullException>(() => LogicFactory.CreateNetworkNode(
+            ArgumentNullException exception = Assert.Throws<ArgumentNullException>(() => Factory.CreateNetworkNode(
                 uri,
-                LogicFactory.CreateRepository(),
+                Factory.CreateRepository(),
                 (a, b) => null,
                 null,
                 Format.JSON,

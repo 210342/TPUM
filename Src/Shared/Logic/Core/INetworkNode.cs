@@ -7,8 +7,6 @@ namespace TPUM.Shared.Logic.Core
 {
     public interface INetworkNode : IDisposable
     {
-        ISerializer<INetworkPacket> Serializer { get; }
-
         Task Start();
         void Stop();
         void Stop(int delay);

@@ -1,9 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
 using System.Net;
-using System.Net.WebSockets;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -100,7 +98,10 @@ namespace TPUM.Server.Logic
                 }
                 else
                 {
-                    if (!_httpHandlerFactory.Invoke(context, _repository).Handle(_entityListSerializer))
+                    if (!_httpHandlerFactory
+                        .Invoke(context, _repository)
+                        .Handle(entities => 
+                            _entityListSerializer.Serialize(entities.Select(e => Mapper.MapEntities<IEntity, Shared.NetworkModel.Core.IEntity>(e)))))
                     {
                         Stop();
                     }
@@ -118,7 +119,7 @@ namespace TPUM.Server.Logic
         {
             foreach (IWebSocketResponseHandler socket in _webSocketSubscribers)
             {
-                socket.SendEntity(value, Serializer, BaseUri);
+                socket.SendEntity(CreateNetworkPacket(value, BaseUri), entity => entity?.Serialize());
             }
         }
 

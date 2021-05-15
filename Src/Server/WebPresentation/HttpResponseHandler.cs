@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Net;
 using TPUM.Server.Logic.Core;
@@ -18,7 +19,7 @@ namespace TPUM.Server.WebPresentation
             _repository = repository;
         }
 
-        public bool Handle(ISerializer<IEnumerable<IEntity>> serializer)
+        public bool Handle(Func<IEnumerable<IEntity>, byte[]> serializer)
         {
             HttpListenerResponse response = _context.Response;
             response.StatusCode = 200;
@@ -32,12 +33,12 @@ namespace TPUM.Server.WebPresentation
                 }
                 else if (_context.Request.RawUrl.ToLower().Contains("books"))
                 {
-                    byte[] bytesToWrite = serializer.Serialize(_repository.GetBooks());
+                    byte[] bytesToWrite = serializer.Invoke(_repository.GetBooks());
                     response.OutputStream.Write(bytesToWrite, 0, bytesToWrite.Length);
                 }
                 else if (_context.Request.RawUrl.ToLower().Contains("authors"))
                 {
-                    byte[] bytesToWrite = serializer.Serialize(_repository.GetAuthors());
+                    byte[] bytesToWrite = serializer.Invoke(_repository.GetAuthors());
                     response.OutputStream.Write(bytesToWrite, 0, bytesToWrite.Length);
                 }
                 else if (_context.Request.RawUrl.ToLower().Contains("add"))

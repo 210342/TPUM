@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using TPUM.Server.Data;
 using TPUM.Server.Data.Core;
 using TPUM.Server.Data.Entities;
+using TPUM.Shared.Logic;
 using TPUM.Shared.Logic.Core;
 
 namespace TPUM.Server.Logic
@@ -17,7 +18,7 @@ namespace TPUM.Server.Logic
         private readonly IDisposable _dataContextSubscription;
         private Data.Core.IDataContext _dataContext;
 
-        public Repository() : this(DataFactory.GetExampleContext()) { }
+        public Repository() : this(Data.Factory.GetExampleContext()) { }
 
         public Repository(Data.Core.IDataContext dataContext)
         {
@@ -29,7 +30,11 @@ namespace TPUM.Server.Logic
 
         public Shared.Logic.WebModel.IAuthor AddAuthor(Shared.Logic.WebModel.IAuthor author)
         {
-            IAuthor dataAuthor = LogicFactory.MapWebModelToEntity(author) as IAuthor;
+            if (author == null)
+            {
+                return null;
+            }
+            IAuthor dataAuthor = Mapper.MapEntities<Shared.Logic.WebModel.IAuthor, IAuthor>(author);
             if (_dataContext is null || dataAuthor is null)
             {
                 return null;
@@ -64,7 +69,11 @@ namespace TPUM.Server.Logic
 
         public Shared.Logic.WebModel.IBook AddBook(Shared.Logic.WebModel.IBook book)
         {
-            IBook dataBook = LogicFactory.MapWebModelToEntity(book) as IBook;
+            if (book == null)
+            {
+                return null;
+            }
+            IBook dataBook = Mapper.MapEntities<Shared.Logic.WebModel.IBook, IBook>(book);
             if (_dataContext is null || dataBook is null)
             {
                 return null;
@@ -112,9 +121,9 @@ namespace TPUM.Server.Logic
             return null;
         }
 
-        public IEnumerable<Shared.Logic.WebModel.IBook> GetBooks() => _dataContext.Books.Select(b => LogicFactory.MapEntityToWebModel(b) as Shared.Logic.WebModel.IBook).ToList();
+        public IEnumerable<Shared.Logic.WebModel.IBook> GetBooks() => _dataContext.Books.Select(b => Factory.MapEntityToWebModel(b) as Shared.Logic.WebModel.IBook).ToList();
 
-        public IEnumerable<Shared.Logic.WebModel.IAuthor> GetAuthors() => _dataContext.Authors.Select(a => LogicFactory.MapEntityToWebModel(a) as Shared.Logic.WebModel.IAuthor).ToList();
+        public IEnumerable<Shared.Logic.WebModel.IAuthor> GetAuthors() => _dataContext.Authors.Select(a => Factory.MapEntityToWebModel(a) as Shared.Logic.WebModel.IAuthor).ToList();
 
         public async Task<IEnumerable<Shared.Logic.WebModel.IBook>> GetBooksAsync() => await Task.Run(GetBooks);
 
@@ -125,7 +134,7 @@ namespace TPUM.Server.Logic
             IAuthor author = _dataContext.Authors.FirstOrDefault(a => a.Id == id);
             if (author != null)
             {
-                return LogicFactory.MapEntityToWebModel(author) as Shared.Logic.WebModel.IAuthor;
+                return Factory.MapEntityToWebModel(author) as Shared.Logic.WebModel.IAuthor;
             }
             return default;
         }
@@ -135,18 +144,9 @@ namespace TPUM.Server.Logic
             IBook book = _dataContext.Books.FirstOrDefault(b => b.Id == id);
             if (book != null)
             {
-                return LogicFactory.MapEntityToWebModel(book) as Shared.Logic.WebModel.IBook;
+                return Factory.MapEntityToWebModel(book) as Shared.Logic.WebModel.IBook;
             }
             return default;
-        }
-
-        public void UpdateBooks(List<Shared.Logic.WebModel.IBook> books)
-        {
-            lock (_booksLock)
-            {
-                _dataContext.ClearBooks();
-                _dataContext.UpdateBooks(books.Select(b => LogicFactory.MapWebModelToEntity(b) as IBook));
-            }
         }
 
         public void UpdateAuthors(List<Shared.Logic.WebModel.IAuthor> authors)
@@ -154,7 +154,16 @@ namespace TPUM.Server.Logic
             lock (_authorsLock)
             {
                 _dataContext.ClearAuthors();
-                _dataContext.UpdateAuthors(authors.Select(a => LogicFactory.MapWebModelToEntity(a) as IAuthor));
+                _dataContext.UpdateAuthors(authors.Select(a => Mapper.MapEntities<Shared.Logic.WebModel.IAuthor, IAuthor>(a)));
+            }
+        }
+
+        public void UpdateBooks(List<Shared.Logic.WebModel.IBook> books)
+        {
+            lock (_booksLock)
+            {
+                _dataContext.ClearBooks();
+                _dataContext.UpdateBooks(books.Select(b => Mapper.MapEntities<Shared.Logic.WebModel.IBook, IBook>(b)));
             }
         }
 
@@ -168,7 +177,7 @@ namespace TPUM.Server.Logic
 
         public virtual void OnNext(IEntity value)
         {
-            InvokeEntityChanged(value as Shared.Logic.WebModel.IEntity ?? LogicFactory.MapEntityToWebModel(value));
+            InvokeEntityChanged(value as Shared.Logic.WebModel.IEntity ?? Factory.MapEntityToWebModel(value));
         }
 
         #endregion
@@ -198,7 +207,7 @@ namespace TPUM.Server.Logic
 
         public Shared.Logic.WebModel.IAuthor AddRandomAuthor()
         {
-            return LogicFactory.MapEntityToWebModel(ObjectCreation.AddAuthor(_dataContext)) as Shared.Logic.WebModel.IAuthor;
+            return Factory.MapEntityToWebModel(ObjectCreation.AddAuthor(_dataContext)) as Shared.Logic.WebModel.IAuthor;
         }
 
         internal void StartBackgroundWorker()

@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-using TPUM.Server.Data;
-using TPUM.Server.Data.Core;
+﻿using System.Collections.Generic;
 using TPUM.Server.Data.Entities;
 using Xunit;
 
