@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Text;
-using System.Threading;
 using TPUM.Server.Logic;
 using TPUM.Shared.Logic.Core;
 
@@ -15,16 +14,16 @@ namespace TPUM.Server.WebPresentation
             {
                 _ = int.TryParse(args[1], out port);
             }
-            using INetworkNode server = LogicFactory.CreateNetworkNode(
+            using INetworkNode server = Factory.CreateNetworkNode(
                 new Uri($"http://localhost:{port}"),
-                LogicFactory.GetExampleRepository(),
+                Factory.GetExampleRepository(),
                 (context, repository) => new HttpResponseHandler(context, repository),
                 (context, token) => new WebSocketResponseHandler(context, token),
                 Format.JSON,
                 Encoding.UTF8
             );
             server.Start();
-            Thread.Sleep(60000);
+            Console.ReadKey();
             server.Stop();
         }
     }

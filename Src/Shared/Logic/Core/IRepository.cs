@@ -10,7 +10,7 @@ namespace TPUM.Shared.Logic.Core
         IAuthor AddAuthor(IAuthor author);
         IBook AddBook(IBook book);
         object AddEntity(object entity);
-        IAuthor AddRandomAuthor();
+        Task<IAuthor> AddRandomAuthor();
 
         IEnumerable<IBook> GetBooks();
         Task<IEnumerable<IBook>> GetBooksAsync();
@@ -23,5 +23,7 @@ namespace TPUM.Shared.Logic.Core
 
         void UpdateBooks(List<IBook> books);
         void UpdateAuthors(List<IAuthor> authors);
+
+        bool StartBackgroundWorker();
     }
 }

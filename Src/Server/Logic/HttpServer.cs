@@ -1,9 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
 using System.Net;
-using System.Net.WebSockets;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -49,11 +47,11 @@ namespace TPUM.Server.Logic
             _dataContextSubscription = _repository.Subscribe(this);
             _httpListener = new HttpListener();
             BaseUri = uri;
-            _httpListener.Prefixes.Add($"{uri}/books/");
-            _httpListener.Prefixes.Add($"{uri}/authors/");
-            _httpListener.Prefixes.Add($"{uri}/add/");
-            _httpListener.Prefixes.Add($"{uri}/connect/");
-            _httpListener.Prefixes.Add($"{uri}/disconnect/");
+            _httpListener.Prefixes.Add($"{uri}");
+            _httpListener.Prefixes.Add($"{uri}books/");
+            _httpListener.Prefixes.Add($"{uri}authors/");
+            _httpListener.Prefixes.Add($"{uri}add/");
+            _httpListener.Prefixes.Add($"{uri}disconnect/");
         }
 
         public override Task Start()
@@ -61,6 +59,7 @@ namespace TPUM.Server.Logic
             base.Start();
             _httpListener.Start();
             Task.Run(() => Start(_cancellationTokenSource.Token));
+            _repository.StartBackgroundWorker();
             return Task.CompletedTask;
         }
 
@@ -88,7 +87,7 @@ namespace TPUM.Server.Logic
 
         private async Task ListenerLoop(CancellationToken token)
         {
-            while (_httpListener.IsListening)
+            while (_httpListener.IsListening && !token.IsCancellationRequested)
             {
                 HttpListenerContext context = await _httpListener.GetContextAsync().ConfigureAwait(false);
                 if (context.Request.IsWebSocketRequest)
@@ -98,12 +97,14 @@ namespace TPUM.Server.Logic
                     _webSocketSubscribers.Add(webSocket);
                     webSocket.Handle();
                 }
-                else
+                else if (!_httpHandlerFactory
+                    .Invoke(context, _repository)
+                    .Handle(
+                        entity => CreateNetworkPacket(entity, BaseUri).Serialize(),
+                        entities => 
+                        _entityListSerializer.Serialize(entities.Select(e => Mapper.MapWebModelToDataModelEntities(e)).ToArray())))
                 {
-                    if (!_httpHandlerFactory.Invoke(context, _repository).Handle(_entityListSerializer))
-                    {
-                        Stop();
-                    }
+                    Stop();
                 }
             }
         }
@@ -118,7 +119,7 @@ namespace TPUM.Server.Logic
         {
             foreach (IWebSocketResponseHandler socket in _webSocketSubscribers)
             {
-                socket.SendEntity(value, Serializer, BaseUri);
+                socket.SendEntity(CreateNetworkPacket(value, BaseUri), entity => entity?.Serialize());
             }
         }
 
@@ -141,7 +142,10 @@ namespace TPUM.Server.Logic
                         webSocket.Dispose();
                     });
                     _webSocketSubscribers.Clear();
-                    _httpListener?.Stop();
+                    if (_httpListener.IsListening)
+                    {
+                        _httpListener.Stop();
+                    }
                 }
 
                 // TODO: free unmanaged resources (unmanaged objects) and override finalizer

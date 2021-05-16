@@ -1,13 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Text;
-using TPUM.Shared.Logic.Core;
+using System.Threading.Tasks;
 using TPUM.Shared.Logic.WebModel;
 
 namespace TPUM.Server.Logic.Core
 {
     public interface IHttpResponseHandler
     {
-        bool Handle(ISerializer<IEnumerable<IEntity>> serializer);
+        bool Handle(Func<IEntity, byte[]> serializer, Func<IEnumerable<IEntity>, byte[]> arraySerializer);
     }
 }

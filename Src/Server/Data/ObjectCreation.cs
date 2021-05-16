@@ -14,25 +14,22 @@ namespace TPUM.Server.Data
         public static IAuthor AddAuthor(IDataContext dataContext)
         {
             DataContext context = dataContext as DataContext;
-            Author newAuthor = null;
-            Task.Run(() =>
+            IAuthor newAuthor = null;
+            int id;
+            do
             {
-                int id;
-                do
-                {
-                    id = _rng.Next(5000);
-                }
-                while (context.AuthorsCollection.FirstOrDefault(a => a.Id == id) != null);
+                id = _rng.Next(5000);
+            }
+            while (context.AuthorsCollection.FirstOrDefault(a => a.Id == id) != null);
 
-                newAuthor = new Author
-                {
-                    Id = id,
-                    FirstName = $"{id} - {nameof(IAuthor.FirstName)}",
-                    LastName = $"{id} - {nameof(IAuthor.LastName)}",
-                    NickName = $"{id} - {nameof(IAuthor.NickName)}"
-                };
-                context.AuthorsCollection.Add(newAuthor);
-            });
+            newAuthor = new Author
+            {
+                Id = id,
+                FirstName = $"{id} - {nameof(IAuthor.FirstName)}",
+                LastName = $"{id} - {nameof(IAuthor.LastName)}",
+                NickName = $"{id} - {nameof(IAuthor.NickName)}"
+            };
+            context.AuthorsCollection.Add(newAuthor as Author);
             return newAuthor;
         }
 

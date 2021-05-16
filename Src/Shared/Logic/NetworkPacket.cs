@@ -1,41 +1,26 @@
-﻿using Newtonsoft.Json;
-using System;
-using System.Collections.Generic;
-using System.Runtime.Serialization;
-using TPUM.Shared.Logic.Core;
-using YamlDotNet.Serialization;
+﻿using System;
+using TPUM.Shared.NetworkModel.Core;
 
 namespace TPUM.Shared.Logic
 {
-    [DataContract]
-    internal class NetworkPacket : AbstractNetworkPacket, IExtensibleDataObject
+    internal class NetworkPacket : WebModel.INetworkPacket
     {
-        #region Serialization support
+        private readonly INetworkPacket _networkPacket;
+        private readonly ISerializer<INetworkPacket> _serializer;
 
-        [JsonIgnore]
-        [YamlIgnore]
-        public ExtensionDataObject ExtensionData { get; set; }
-        [YamlIgnore]
-        [JsonExtensionData]
-        public Dictionary<string, object> JsonExtensionData { get; set; }
+        public Uri Source { get => _networkPacket.Source; set => _networkPacket.Source = value; }
+        public Guid TypeIdentifier { get => _networkPacket.TypeIdentifier; set => _networkPacket.TypeIdentifier = value; }
+        public object Entity { get => _networkPacket.Entity; set => _networkPacket.Entity = value; }
 
-        #endregion
-
-        public override bool Equals(object obj)
+        internal NetworkPacket(INetworkPacket packet, ISerializer<INetworkPacket> serializer)
         {
-            return obj is NetworkPacket entity &&
-                   EqualityComparer<Uri>.Default.Equals(Source, entity.Source) &&
-                   TypeIdentifier.Equals(entity.TypeIdentifier) &&
-                   EqualityComparer<object>.Default.Equals(Entity, entity.Entity);
+            _networkPacket = packet ?? throw new ArgumentNullException(nameof(packet));
+            _serializer = serializer ?? throw new ArgumentNullException(nameof(serializer));
         }
 
-        public override int GetHashCode()
+        public byte[] Serialize()
         {
-            int hashCode = 2103276648;
-            hashCode = hashCode * -1521134295 + EqualityComparer<Uri>.Default.GetHashCode(Source);
-            hashCode = hashCode * -1521134295 + TypeIdentifier.GetHashCode();
-            hashCode = hashCode * -1521134295 + EqualityComparer<object>.Default.GetHashCode(Entity);
-            return hashCode;
+            return _networkPacket.Serialize(_serializer);
         }
     }
 }
