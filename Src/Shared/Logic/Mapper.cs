@@ -59,18 +59,31 @@ namespace TPUM.Shared.Logic
             }
         }
 
-        public static TOut MapAbstractEntities<TOut>(IEntity entity)
-            where TOut : class
+        public static NetworkModel.Core.IEntity MapWebModelToDataModelEntities(IEntity entity)
         {
-            Type typeIn = entity is IAuthor ? typeof(IAuthor) : typeof(IBook);
+            Type typeOut = entity is IAuthor ? typeof(NetworkModel.Core.IAuthor) : typeof(NetworkModel.Core.IBook);
             try
             {
-                string json = JsonConvert.SerializeObject(entity, typeIn, _settings);
-                return JsonConvert.DeserializeObject<TOut>(json, _settings);
+                string json = JsonConvert.SerializeObject(entity, typeof(IEntity), _settings);
+                return JsonConvert.DeserializeObject(json, typeOut, _settings) as NetworkModel.Core.IEntity;
             }
             catch (Exception ex)
             {
-                throw new IncompatibleMappingException($"Couldn't perform mapping from type {typeIn.FullName} to {typeof(TOut).FullName}", ex);
+                throw new IncompatibleMappingException($"Couldn't perform mapping from type {typeof(IEntity).FullName} to {typeOut.FullName}", ex);
+            }
+        }
+
+        public static IEntity MapWebModelToDataModelEntities(NetworkModel.Core.IEntity entity)
+        {
+            Type typeOut = entity is NetworkModel.Core.IAuthor ? typeof(Author) : typeof(IBook);
+            try
+            {
+                string json = JsonConvert.SerializeObject(entity, typeof(NetworkModel.Core.IEntity), _settings);
+                return JsonConvert.DeserializeObject(json, typeOut, _settings) as IEntity;
+            }
+            catch (Exception ex)
+            {
+                throw new IncompatibleMappingException($"Couldn't perform mapping from type {typeof(IEntity).FullName} to {typeOut.FullName}", ex);
             }
         }
 

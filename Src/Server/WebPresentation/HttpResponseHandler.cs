@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Net;
+using System.Threading.Tasks;
 using TPUM.Server.Logic.Core;
 using TPUM.Shared.Logic.Core;
 using TPUM.Shared.Logic.WebModel;
@@ -19,32 +20,34 @@ namespace TPUM.Server.WebPresentation
             _repository = repository;
         }
 
-        public bool Handle(Func<IEnumerable<IEntity>, byte[]> serializer)
+        public bool Handle(Func<IEntity, byte[]> serializer, Func<IEnumerable<IEntity>, byte[]> arraySerializer)
         {
             HttpListenerResponse response = _context.Response;
             response.StatusCode = 200;
             response.ContentType = "text/plain; charset=utf-8";
-            using (StreamWriter writer = new(response.OutputStream))
+            if (_context.Request.RawUrl.ToLower().Contains("disconnect"))
             {
-                if (_context.Request.RawUrl.ToLower().Contains("disconnect"))
+                using (StreamWriter writer = new(response.OutputStream))
                 {
                     writer.WriteLine("Closing the server");
-                    return false;
+                    response.Close();
                 }
-                else if (_context.Request.RawUrl.ToLower().Contains("books"))
-                {
-                    byte[] bytesToWrite = serializer.Invoke(_repository.GetBooks());
-                    response.OutputStream.Write(bytesToWrite, 0, bytesToWrite.Length);
-                }
-                else if (_context.Request.RawUrl.ToLower().Contains("authors"))
-                {
-                    byte[] bytesToWrite = serializer.Invoke(_repository.GetAuthors());
-                    response.OutputStream.Write(bytesToWrite, 0, bytesToWrite.Length);
-                }
-                else if (_context.Request.RawUrl.ToLower().Contains("add"))
-                {
-                    _repository.AddRandomAuthor();
-                }
+                return false;
+            }
+            else if (_context.Request.RawUrl.ToLower().Contains("books"))
+            {
+                byte[] bytesToWrite = arraySerializer.Invoke(_repository.GetBooks());
+                response.OutputStream.Write(bytesToWrite, 0, bytesToWrite.Length);
+            }
+            else if (_context.Request.RawUrl.ToLower().Contains("authors"))
+            {
+                byte[] bytesToWrite = arraySerializer.Invoke(_repository.GetAuthors());
+                response.OutputStream.Write(bytesToWrite, 0, bytesToWrite.Length);
+            }
+            else if (_context.Request.RawUrl.ToLower().Contains("add"))
+            {
+                byte[] bytesToWrite = serializer.Invoke(_repository.AddRandomAuthor().GetAwaiter().GetResult());
+                response.OutputStream.Write(bytesToWrite, 0, bytesToWrite.Length);
             }
             response.Close();
             return true;

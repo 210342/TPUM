@@ -16,11 +16,12 @@ namespace TPUM.Server.Logic
         private readonly object _authorsLock = new object();
 
         private readonly IDisposable _dataContextSubscription;
-        private Data.Core.IDataContext _dataContext;
+        private IDataContext _dataContext;
+        private bool _isBackgroundWorkerRunning;
 
         public Repository() : this(Data.Factory.GetExampleContext()) { }
 
-        public Repository(Data.Core.IDataContext dataContext)
+        public Repository(IDataContext dataContext)
         {
             _dataContext = dataContext ?? throw new ArgumentNullException(nameof(dataContext));
             _dataContextSubscription = _dataContext.Subscribe(this);
@@ -205,14 +206,20 @@ namespace TPUM.Server.Logic
 
         #endregion
 
-        public Shared.Logic.WebModel.IAuthor AddRandomAuthor()
+        public Task<Shared.Logic.WebModel.IAuthor> AddRandomAuthor()
         {
-            return Factory.MapEntityToWebModel(ObjectCreation.AddAuthor(_dataContext)) as Shared.Logic.WebModel.IAuthor;
+            return Task.FromResult(Factory.MapEntityToWebModel(ObjectCreation.AddAuthor(_dataContext)) as Shared.Logic.WebModel.IAuthor);
         }
 
-        internal void StartBackgroundWorker()
+        public bool StartBackgroundWorker()
         {
-            ObjectCreation.AddBookInLoop(_dataContext);
+            if (!_isBackgroundWorkerRunning)
+            {
+                _isBackgroundWorkerRunning = true;
+                ObjectCreation.AddBookInLoop(_dataContext);
+                return true;
+            }
+            return false;
         }
     }
 }

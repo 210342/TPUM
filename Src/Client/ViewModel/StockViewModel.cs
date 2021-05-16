@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.ObjectModel;
 using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
 using TPUM.Shared.Logic.Core;
 using TPUM.Shared.Logic.WebModel;
 
@@ -45,15 +47,16 @@ namespace TPUM.Client.ViewModel
 
         #endregion
 
-        public StockViewModel(IDispatcher dispatcher) : this(null, dispatcher) { }
+        public StockViewModel(IDispatcher dispatcher) 
+            : this(Logic.Factory.CreateRepository(new Uri("http://localhost:5000/"), Format.JSON, Encoding.UTF8), dispatcher) { }
 
         public StockViewModel(IRepository repository, IDispatcher dispatcher) : base(dispatcher)
         {
             _repository = repository;
             _socketSubscription = _repository.Subscribe(this);
-            _repository.GetAuthors().ToList().ForEach(a => Authors.Add(new AuthorViewModel(a)));
-            _repository.GetBooks().ToList().ForEach(b => Books.Add(new BookViewModel(b)));
-            AddAuthorCommand = new Command((object args) => { });
+            Task.Run(() =>_repository.GetAuthors().ToList().ForEach(a => OnNext(a)));
+            Task.Run(() => _repository.GetBooks().ToList().ForEach(b => OnNext(b)));
+            AddAuthorCommand = new Command(args => Task.Run(_repository.AddRandomAuthor));
         }
 
         #region IObserver

@@ -9,5 +9,6 @@ namespace TPUM.Client.Data.Core
     {
         Task<IEnumerable<IBook>> GetBooksAsync();
         Task<IEnumerable<IAuthor>> GetAuthorsAsync();
+        Task<IAuthor> AddRandomAuthorAsync();
     }
 }

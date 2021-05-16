@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Text;
-using System.Threading;
 using TPUM.Server.Logic;
 using TPUM.Shared.Logic.Core;
 
@@ -24,7 +23,7 @@ namespace TPUM.Server.WebPresentation
                 Encoding.UTF8
             );
             server.Start();
-            Thread.Sleep(60000);
+            Console.ReadKey();
             server.Stop();
         }
     }

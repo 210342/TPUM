@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using TPUM.Shared.NetworkModel.Core;
 
 namespace TPUM.Shared.NetworkModel.Formatters
@@ -8,7 +9,10 @@ namespace TPUM.Shared.NetworkModel.Formatters
     {
         public static IFormatter<T> CreateFormatter<T>(Format format)
         {
-            return CreateFormatter<T>(format, new[] { typeof(T) });
+            return CreateFormatter<T>(
+                format, 
+                typeof(T).Assembly.GetTypes().Where(t => typeof(T).IsAssignableFrom(t))
+            );
         }
 
         public static IFormatter<T> CreateFormatter<T>(Format format, IEnumerable<Type> knownTypes)

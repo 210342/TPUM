@@ -26,8 +26,7 @@ namespace TPUM.Client.Data
             _ = encoding ?? throw new ArgumentNullException(nameof(encoding));
             _webSocket = new ClientWebSocket();
             Serializer = Shared.NetworkModel.Factory.CreateSerializer<INetworkPacket>(format, encoding);
-            ServerUri = new Uri($"ws://{serverUri.Host}");
-            _wsConnectionEndpoint = new Uri($"{ServerUri}/connect");
+            ServerUri = new Uri($"ws://{serverUri.Authority}");
         }
 
         public async Task Start()
@@ -35,10 +34,10 @@ namespace TPUM.Client.Data
             try
             {
                 _cancellationTokenSource = new CancellationTokenSource();
-                await _webSocket?.ConnectAsync(_wsConnectionEndpoint, _cancellationTokenSource.Token);
+                await _webSocket?.ConnectAsync(ServerUri, _cancellationTokenSource.Token);
                 await WebSocketLoop(_cancellationTokenSource.Token);
             }
-            catch (WebSocketException)
+            catch (WebSocketException exception)
             {
                 return;
             }

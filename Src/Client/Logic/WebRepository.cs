@@ -1,23 +1,67 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using TPUM.Client.Data.Core;
+using TPUM.Shared.Logic;
 using TPUM.Shared.Logic.Core;
 using TPUM.Shared.Logic.WebModel;
 
 namespace TPUM.Client.Logic
 {
-    internal class WebRepository : IRepository
+    internal class WebRepository : Shared.NetworkModel.Core.Observable<IEntity>, IRepository, IObserver<Shared.NetworkModel.Core.IEntity>
     {
         private readonly ISocket _socket;
         private readonly IHttpClient _httpClient;
+        private readonly IDisposable _socketSubscription;
 
         public WebRepository(Uri uri, Shared.NetworkModel.Core.Format format, Encoding encoding)
         {
             _socket = Data.Factory.CreateWebDataSource<ISocket>(uri, format, encoding);
             _httpClient = Data.Factory.CreateWebDataSource<IHttpClient>(uri, format, encoding);
+            _socketSubscription = _socket.Subscribe(this);
+            _socket.Start();
         }
+
+        public async Task<IAuthor> AddRandomAuthor()
+        {
+            return Mapper.MapEntities<Shared.NetworkModel.Core.IAuthor, IAuthor>(
+                await _httpClient.AddRandomAuthorAsync()
+            );
+        }
+
+        public IAuthor GetAuthorById(int id)
+        {
+            return GetAuthors().FirstOrDefault(a => a.Id == id);
+        }
+
+        public IEnumerable<IAuthor> GetAuthors()
+        {
+            return GetAuthorsAsync().GetAwaiter().GetResult();
+        }
+
+        public async Task<IEnumerable<IAuthor>> GetAuthorsAsync()
+        {
+            return (await _httpClient.GetAuthorsAsync()).Select(a => Mapper.MapEntities<Shared.NetworkModel.Core.IAuthor, IAuthor>(a));
+        }
+
+        public IBook GetBookById(int id)
+        {
+            return GetBooks().FirstOrDefault(b => b.Id == id);
+        }
+
+        public IEnumerable<IBook> GetBooks()
+        {
+            return GetBooksAsync().GetAwaiter().GetResult();
+        }
+
+        public async Task<IEnumerable<IBook>> GetBooksAsync()
+        {
+            return (await _httpClient.GetBooksAsync()).Select(b => Mapper.MapEntities<Shared.NetworkModel.Core.IBook, IBook>(b));
+        }
+
+        #region Unimplemented methods
 
         public IAuthor AddAuthor(IAuthor author)
         {
@@ -34,46 +78,6 @@ namespace TPUM.Client.Logic
             throw new NotImplementedException();
         }
 
-        public IAuthor AddRandomAuthor()
-        {
-            throw new NotImplementedException();
-        }
-
-        public IAuthor GetAuthorById(int id)
-        {
-            throw new NotImplementedException();
-        }
-
-        public IEnumerable<IAuthor> GetAuthors()
-        {
-            throw new NotImplementedException();
-        }
-
-        public Task<IEnumerable<IAuthor>> GetAuthorsAsync()
-        {
-            throw new NotImplementedException();
-        }
-
-        public IBook GetBookById(int id)
-        {
-            throw new NotImplementedException();
-        }
-
-        public IEnumerable<IBook> GetBooks()
-        {
-            throw new NotImplementedException();
-        }
-
-        public Task<IEnumerable<IBook>> GetBooksAsync()
-        {
-            throw new NotImplementedException();
-        }
-
-        public IDisposable Subscribe(IObserver<IEntity> observer)
-        {
-            throw new NotImplementedException();
-        }
-
         public void UpdateAuthors(List<IAuthor> authors)
         {
             throw new NotImplementedException();
@@ -84,16 +88,45 @@ namespace TPUM.Client.Logic
             throw new NotImplementedException();
         }
 
+        public bool StartBackgroundWorker()
+        {
+            throw new NotImplementedException("Cannot start a background worker for client-side repository");
+        }
+
+        #endregion
+
+        #region IObserver
+
+        public void OnCompleted()
+        {
+            throw new NotImplementedException();
+        }
+
+        public void OnError(Exception error)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void OnNext(Shared.NetworkModel.Core.IEntity value)
+        {
+            InvokeEntityChanged(Mapper.MapWebModelToDataModelEntities(value));
+        }
+
+        #endregion
+
         #region IDisposable
 
         private bool disposedValue;
-        protected virtual void Dispose(bool disposing)
+        protected override void Dispose(bool disposing)
         {
+            base.Dispose(disposing);
             if (!disposedValue)
             {
                 if (disposing)
                 {
                     // TODO: dispose managed state (managed objects)
+                    _socketSubscription?.Dispose();
+                    _socket.Stop();
                     _socket.Dispose();
                     _httpClient.Dispose();
                 }
@@ -110,13 +143,6 @@ namespace TPUM.Client.Logic
         //     // Do not change this code. Put cleanup code in 'Dispose(bool disposing)' method
         //     Dispose(disposing: false);
         // }
-
-        public void Dispose()
-        {
-            // Do not change this code. Put cleanup code in 'Dispose(bool disposing)' method
-            Dispose(disposing: true);
-            GC.SuppressFinalize(this);
-        }
 
         #endregion
     }

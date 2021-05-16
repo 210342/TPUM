@@ -10,7 +10,8 @@ namespace TPUM.Client.Data
 {
     internal class HttpClient : IHttpClient
     {
-        private readonly ISerializer<IEnumerable<IEntity>> _entityListSerializer;
+        private readonly ISerializer<IEntity[]> _entityListSerializer;
+        private readonly ISerializer<IEntity> _entitySerializer;
         private readonly System.Net.Http.HttpClient _httpClient;
 
         public Uri ServerUri { get; }
@@ -19,7 +20,8 @@ namespace TPUM.Client.Data
         {
             ServerUri = serverUri ?? throw new ArgumentNullException(nameof(serverUri));
             _httpClient = new System.Net.Http.HttpClient();
-            _entityListSerializer = Shared.NetworkModel.Factory.CreateSerializer<IEnumerable<IEntity>>(format, encoding);
+            _entityListSerializer = Shared.NetworkModel.Factory.CreateSerializer<IEntity[]>(format, encoding);
+            _entitySerializer = Shared.NetworkModel.Factory.CreateSerializer<IEntity>(format, encoding);
         }
 
         public async Task<IEnumerable<IBook>> GetBooksAsync()
@@ -32,6 +34,12 @@ namespace TPUM.Client.Data
         {
             System.Net.Http.HttpResponseMessage response = await _httpClient.GetAsync($"{ServerUri}authors");
             return _entityListSerializer.Deserialize(await response.Content.ReadAsByteArrayAsync()).OfType<IAuthor>();
+        }
+
+        public async Task<IAuthor> AddRandomAuthorAsync()
+        {
+            System.Net.Http.HttpResponseMessage response = await _httpClient.GetAsync($"{ServerUri}add");
+            return _entitySerializer.Deserialize(await response.Content.ReadAsByteArrayAsync()) as IAuthor;
         }
 
         #region IDisposable

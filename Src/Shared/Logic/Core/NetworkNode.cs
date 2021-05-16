@@ -10,7 +10,7 @@ namespace TPUM.Shared.Logic.Core
     public abstract class NetworkNode : Observable<IEntity>, INetworkNode
     {
         protected internal readonly int _bufferSize = 1024;
-        protected internal readonly ISerializer<IEnumerable<IEntity>> _entityListSerializer;
+        protected internal readonly ISerializer<IEntity[]> _entityListSerializer;
         protected internal CancellationTokenSource _cancellationTokenSource;
 
         internal ISerializer<INetworkPacket> Serializer { get; }
@@ -23,7 +23,7 @@ namespace TPUM.Shared.Logic.Core
 
         public NetworkNode(Format format, Encoding encoding)
         {
-            _entityListSerializer = NetworkModel.Factory.CreateSerializer<IEnumerable<IEntity>>(Mapper.MapFormat(format), encoding);
+            _entityListSerializer = NetworkModel.Factory.CreateSerializer<IEntity[]>(Mapper.MapFormat(format), encoding);
             Serializer = NetworkModel.Factory.CreateSerializer<INetworkPacket>(Mapper.MapFormat(format), encoding);
         }
 
@@ -51,7 +51,7 @@ namespace TPUM.Shared.Logic.Core
             INetworkPacket packet = NetworkModel.Factory.CreateObject<INetworkPacket>();
             packet.Source = uri;
             packet.TypeIdentifier = entity.GetType().GUID;
-            packet.Entity = Mapper.MapAbstractEntities<IEntity>(entity);
+            packet.Entity = Mapper.MapWebModelToDataModelEntities(entity);
             return new NetworkPacket(packet, Serializer);
         }
 
