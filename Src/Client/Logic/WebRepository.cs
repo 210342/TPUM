@@ -26,9 +26,15 @@ namespace TPUM.Client.Logic
 
         public async Task<IAuthor> AddRandomAuthor()
         {
-            return Mapper.MapEntities<Shared.NetworkModel.Core.IAuthor, IAuthor>(
-                await _httpClient.AddRandomAuthorAsync()
-            );
+            try { 
+                return Mapper.MapEntities<Shared.NetworkModel.Core.IAuthor, IAuthor>(
+                    await _httpClient.AddRandomAuthorAsync()
+                );
+            }
+            catch (OperationCanceledException)
+            {
+                return null;
+            }
         }
 
         public IAuthor GetAuthorById(int id)
@@ -43,7 +49,14 @@ namespace TPUM.Client.Logic
 
         public async Task<IEnumerable<IAuthor>> GetAuthorsAsync()
         {
-            return (await _httpClient.GetAuthorsAsync()).Select(a => Mapper.MapEntities<Shared.NetworkModel.Core.IAuthor, IAuthor>(a));
+            try 
+            {
+                return (await _httpClient.GetAuthorsAsync()).Select(a => Mapper.MapEntities<Shared.NetworkModel.Core.IAuthor, IAuthor>(a));
+            }
+            catch (OperationCanceledException)
+            {
+                return Enumerable.Empty<IAuthor>();
+            }
         }
 
         public IBook GetBookById(int id)
@@ -58,7 +71,14 @@ namespace TPUM.Client.Logic
 
         public async Task<IEnumerable<IBook>> GetBooksAsync()
         {
-            return (await _httpClient.GetBooksAsync()).Select(b => Mapper.MapEntities<Shared.NetworkModel.Core.IBook, IBook>(b));
+            try
+            { 
+                return (await _httpClient.GetBooksAsync()).Select(b => Mapper.MapEntities<Shared.NetworkModel.Core.IBook, IBook>(b));
+            }
+            catch (OperationCanceledException)
+            {
+                return Enumerable.Empty<IBook>();
+            }
         }
 
         #region Unimplemented methods

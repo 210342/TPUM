@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net.Sockets;
 using System.Text;
 using System.Threading.Tasks;
 using TPUM.Client.Data.Core;
@@ -26,20 +27,41 @@ namespace TPUM.Client.Data
 
         public async Task<IEnumerable<IBook>> GetBooksAsync()
         {
-            System.Net.Http.HttpResponseMessage response = await _httpClient.GetAsync($"{ServerUri}books");
-            return _entityListSerializer.Deserialize(await response.Content.ReadAsByteArrayAsync()).OfType<IBook>();
+            try 
+            {
+                System.Net.Http.HttpResponseMessage response = await _httpClient.GetAsync($"{ServerUri}books");
+                return _entityListSerializer.Deserialize(await response.Content.ReadAsByteArrayAsync()).OfType<IBook>();
+            }
+            catch (SocketException)
+            {
+                return Enumerable.Empty<IBook>();
+            }
         }
 
         public async Task<IEnumerable<IAuthor>> GetAuthorsAsync()
         {
-            System.Net.Http.HttpResponseMessage response = await _httpClient.GetAsync($"{ServerUri}authors");
-            return _entityListSerializer.Deserialize(await response.Content.ReadAsByteArrayAsync()).OfType<IAuthor>();
+            try 
+            {
+                System.Net.Http.HttpResponseMessage response = await _httpClient.GetAsync($"{ServerUri}authors");
+                return _entityListSerializer.Deserialize(await response.Content.ReadAsByteArrayAsync()).OfType<IAuthor>();
+            }
+            catch (SocketException)
+            {
+                return Enumerable.Empty<IAuthor>();
+            }
         }
 
         public async Task<IAuthor> AddRandomAuthorAsync()
         {
-            System.Net.Http.HttpResponseMessage response = await _httpClient.GetAsync($"{ServerUri}add");
-            return _entitySerializer.Deserialize(await response.Content.ReadAsByteArrayAsync()) as IAuthor;
+            try
+            {
+                System.Net.Http.HttpResponseMessage response = await _httpClient.GetAsync($"{ServerUri}add");
+                return _entitySerializer.Deserialize(await response.Content.ReadAsByteArrayAsync()) as IAuthor;
+            }
+            catch (SocketException)
+            {
+                return null;
+            }
         }
 
         #region IDisposable
