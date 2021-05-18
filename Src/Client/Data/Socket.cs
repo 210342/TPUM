@@ -13,7 +13,6 @@ namespace TPUM.Client.Data
     {
         private const int BUFFER_SIZE = 1024;
         private readonly ClientWebSocket _webSocket;
-        private readonly Uri _wsConnectionEndpoint;
         private CancellationTokenSource _cancellationTokenSource;
 
         public Uri ServerUri { get; }
@@ -37,7 +36,7 @@ namespace TPUM.Client.Data
                 await _webSocket?.ConnectAsync(ServerUri, _cancellationTokenSource.Token);
                 await WebSocketLoop(_cancellationTokenSource.Token);
             }
-            catch (WebSocketException exception)
+            catch (WebSocketException)
             {
                 return;
             }

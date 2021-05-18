@@ -117,7 +117,7 @@ namespace TPUM.Server.Logic
 
         public void OnNext(IEntity value)
         {
-            foreach (IWebSocketResponseHandler socket in _webSocketSubscribers)
+            foreach (IWebSocketResponseHandler socket in _webSocketSubscribers.ToList())
             {
                 socket.SendEntity(CreateNetworkPacket(value, BaseUri), entity => entity?.Serialize());
             }
