@@ -20,4 +20,8 @@
     </AssemblyAttribute>
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="OPCModel\" />
+  </ItemGroup>
+
 </Project>
