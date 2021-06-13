@@ -7,6 +7,7 @@
 
   <ItemGroup>
     <PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
+    <PackageReference Include="OPCFoundation.NetStandard.Opc.Ua" Version="1.4.366.38" />
     <PackageReference Include="System.Memory" Version="4.5.4" />
     <PackageReference Include="YamlDotNet" Version="11.1.1" />
   </ItemGroup>

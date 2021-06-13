@@ -1,0 +1,13 @@
+Book,1,ObjectType
+Book_Title,2,Variable
+Author,4,ObjectType
+Book_Id,20,Variable
+Author_Id,21,Variable
+Author_FirstName,22,Variable
+Author_LastName,23,Variable
+Author_NickName,24,Variable
+Book_Author,52,Object
+Book_Author_Id,53,Variable
+Book_Author_FirstName,54,Variable
+Book_Author_LastName,55,Variable
+Book_Author_NickName,56,Variable

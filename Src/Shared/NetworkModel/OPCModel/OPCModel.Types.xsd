@@ -7,8 +7,4 @@
 >
   <xs:import namespace="http://opcfoundation.org/UA/2008/02/Types.xsd" />
 
-  <xs:element name="Book" type="ua:Variant" />
-
-  <xs:element name="Author" type="ua:Variant" />
-
 </xs:schema>

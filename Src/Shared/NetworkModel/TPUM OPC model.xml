@@ -1,0 +1,50 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml-stylesheet type="text/xsl" href="OPCUAModelDesign.xslt"?>
+<ModelDesign xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" TargetNamespace="http://tpum.example.com" TargetXmlNamespace="http://tpum.example.com" xmlns="http://opcfoundation.org/UA/ModelDesign.xsd">
+  <Namespaces>
+    <Namespace Name="OpcUa" Prefix="Opc.Ua" XmlNamespace="http://opcfoundation.org/UA/2008/02/Types.xsd">http://opcfoundation.org/UA/</Namespace>
+    <Namespace Name="OPCModel" Prefix="OPCModel" XmlNamespace="" FilePath="">http://tpum.example.com</Namespace>
+  </Namespaces>
+  <ObjectType xmlns:q1="http://tpum.example.com" SymbolicName="q1:Book" xmlns:q2="http://opcfoundation.org/UA/" BaseType="q2:BaseObjectType">
+    <BrowseName>Book</BrowseName>
+    <DisplayName Key="Book">Book</DisplayName>
+    <Children>
+      <Property SymbolicName="q1:Id" ModellingRule="Mandatory" DataType="q2:Int32" ValueRank="Scalar" AccessLevel="ReadWrite">
+        <BrowseName>Id</BrowseName>
+        <DisplayName Key="Id">Id</DisplayName>
+      </Property>
+      <Property SymbolicName="q1:Title" ModellingRule="Optional" DataType="q2:String" ValueRank="Scalar" AccessLevel="ReadWrite">
+        <BrowseName>Title</BrowseName>
+        <DisplayName Key="Title">Title</DisplayName>
+      </Property>
+      <Object SymbolicName="q1:Author" TypeDefinition="q1:Author" ModellingRule="Optional">
+        <BrowseName>Author</BrowseName>
+        <DisplayName Key="Author">Author</DisplayName>
+      </Object>
+    </Children>
+    <ClassName>Book</ClassName>
+  </ObjectType>
+  <ObjectType xmlns:q3="http://tpum.example.com" SymbolicName="q3:Author" xmlns:q4="http://opcfoundation.org/UA/" BaseType="q4:BaseObjectType">
+    <BrowseName>Author</BrowseName>
+    <DisplayName Key="Author">Author</DisplayName>
+    <Children>
+      <Property SymbolicName="q3:Id" ModellingRule="Optional" DataType="q4:Int32" ValueRank="Scalar">
+        <BrowseName>Id</BrowseName>
+        <DisplayName Key="Id">Id</DisplayName>
+      </Property>
+      <Property SymbolicName="q3:FirstName" ModellingRule="Optional" DataType="q4:String" ValueRank="Scalar" AccessLevel="ReadWrite">
+        <BrowseName>FirstName</BrowseName>
+        <DisplayName Key="FirstName">FirstName</DisplayName>
+      </Property>
+      <Property SymbolicName="q3:LastName" ModellingRule="Optional" DataType="q4:String" ValueRank="Scalar" AccessLevel="ReadWrite">
+        <BrowseName>LastName</BrowseName>
+        <DisplayName Key="LastName">LastName</DisplayName>
+      </Property>
+      <Property SymbolicName="q3:NickName" ModellingRule="Optional" DataType="q4:String" ValueRank="Scalar" AccessLevel="ReadWrite">
+        <BrowseName>NickName</BrowseName>
+        <DisplayName Key="NickName">NickName</DisplayName>
+      </Property>
+    </Children>
+    <ClassName>Author</ClassName>
+  </ObjectType>
+</ModelDesign>
