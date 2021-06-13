@@ -45,23 +45,15 @@
     <Alias Alias="HasEncoding">i=38</Alias>
     <Alias Alias="HasDescription">i=39</Alias>
   </Aliases>
-  <UADataType NodeId="ns=1;i=1" BrowseName="1:Book">
+  <UAObjectType NodeId="ns=1;i=1" BrowseName="1:Book">
     <DisplayName>Book</DisplayName>
     <References>
-      <Reference ReferenceType="HasProperty">ns=1;i=2</Reference>
       <Reference ReferenceType="HasProperty">ns=1;i=20</Reference>
-      <Reference ReferenceType="HasProperty">ns=1;i=25</Reference>
-      <Reference ReferenceType="HasSubtype" IsForward="false">i=24</Reference>
+      <Reference ReferenceType="HasProperty">ns=1;i=2</Reference>
+      <Reference ReferenceType="HasComponent">ns=1;i=52</Reference>
+      <Reference ReferenceType="HasSubtype" IsForward="false">i=58</Reference>
     </References>
-  </UADataType>
-  <UAVariable NodeId="ns=1;i=2" BrowseName="1:Title" ParentNodeId="ns=1;i=1" DataType="String" AccessLevel="3">
-    <DisplayName>Title</DisplayName>
-    <References>
-      <Reference ReferenceType="HasTypeDefinition">i=68</Reference>
-      <Reference ReferenceType="HasModellingRule">i=78</Reference>
-      <Reference ReferenceType="HasProperty" IsForward="false">ns=1;i=1</Reference>
-    </References>
-  </UAVariable>
+  </UAObjectType>
   <UAVariable NodeId="ns=1;i=20" BrowseName="1:Id" ParentNodeId="ns=1;i=1" DataType="Int32" AccessLevel="3">
     <DisplayName>Id</DisplayName>
     <References>
@@ -70,38 +62,37 @@
       <Reference ReferenceType="HasProperty" IsForward="false">ns=1;i=1</Reference>
     </References>
   </UAVariable>
-  <UAVariable NodeId="ns=1;i=25" BrowseName="1:Authors" ParentNodeId="ns=1;i=1" DataType="ns=1;i=4" ValueRank="1" ArrayDimensions="1" AccessLevel="3">
-    <DisplayName>Authors</DisplayName>
+  <UAVariable NodeId="ns=1;i=2" BrowseName="1:Title" ParentNodeId="ns=1;i=1" DataType="String" AccessLevel="3">
+    <DisplayName>Title</DisplayName>
     <References>
       <Reference ReferenceType="HasTypeDefinition">i=68</Reference>
       <Reference ReferenceType="HasModellingRule">i=80</Reference>
       <Reference ReferenceType="HasProperty" IsForward="false">ns=1;i=1</Reference>
     </References>
   </UAVariable>
-  <UADataType NodeId="ns=1;i=4" BrowseName="1:Author">
+  <UAObject NodeId="ns=1;i=52" BrowseName="1:Author" ParentNodeId="ns=1;i=1">
     <DisplayName>Author</DisplayName>
     <References>
-      <Reference ReferenceType="HasProperty">ns=1;i=19</Reference>
+      <Reference ReferenceType="HasTypeDefinition">ns=1;i=4</Reference>
+      <Reference ReferenceType="HasModellingRule">i=80</Reference>
+      <Reference ReferenceType="HasComponent" IsForward="false">ns=1;i=1</Reference>
+    </References>
+  </UAObject>
+  <UAObjectType NodeId="ns=1;i=4" BrowseName="1:Author">
+    <DisplayName>Author</DisplayName>
+    <References>
       <Reference ReferenceType="HasProperty">ns=1;i=21</Reference>
       <Reference ReferenceType="HasProperty">ns=1;i=22</Reference>
       <Reference ReferenceType="HasProperty">ns=1;i=23</Reference>
       <Reference ReferenceType="HasProperty">ns=1;i=24</Reference>
-      <Reference ReferenceType="HasSubtype" IsForward="false">i=24</Reference>
+      <Reference ReferenceType="HasSubtype" IsForward="false">i=58</Reference>
     </References>
-  </UADataType>
-  <UAVariable NodeId="ns=1;i=19" BrowseName="1:Books" ParentNodeId="ns=1;i=4" DataType="ns=1;i=1" ValueRank="1" ArrayDimensions="1" AccessLevel="3">
-    <DisplayName>Books</DisplayName>
-    <References>
-      <Reference ReferenceType="HasTypeDefinition">i=68</Reference>
-      <Reference ReferenceType="HasModellingRule">i=80</Reference>
-      <Reference ReferenceType="HasProperty" IsForward="false">ns=1;i=4</Reference>
-    </References>
-  </UAVariable>
-  <UAVariable NodeId="ns=1;i=21" BrowseName="1:Id" ParentNodeId="ns=1;i=4" DataType="Int32" AccessLevel="2">
+  </UAObjectType>
+  <UAVariable NodeId="ns=1;i=21" BrowseName="1:Id" ParentNodeId="ns=1;i=4" DataType="Int32">
     <DisplayName>Id</DisplayName>
     <References>
       <Reference ReferenceType="HasTypeDefinition">i=68</Reference>
-      <Reference ReferenceType="HasModellingRule">i=78</Reference>
+      <Reference ReferenceType="HasModellingRule">i=80</Reference>
       <Reference ReferenceType="HasProperty" IsForward="false">ns=1;i=4</Reference>
     </References>
   </UAVariable>
@@ -128,43 +119,5 @@
       <Reference ReferenceType="HasModellingRule">i=80</Reference>
       <Reference ReferenceType="HasProperty" IsForward="false">ns=1;i=4</Reference>
     </References>
-  </UAVariable>
-  <UAVariable NodeId="ns=1;i=10" BrowseName="1:TPUM" SymbolicName="TPUM_XmlSchema" DataType="ByteString">
-    <DisplayName>TPUM</DisplayName>
-    <References>
-      <Reference ReferenceType="HasProperty">ns=1;i=12</Reference>
-      <Reference ReferenceType="HasComponent" IsForward="false">i=92</Reference>
-      <Reference ReferenceType="HasTypeDefinition">i=72</Reference>
-    </References>
-  </UAVariable>
-  <UAVariable NodeId="ns=1;i=12" BrowseName="NamespaceUri" ParentNodeId="ns=1;i=10" DataType="String">
-    <DisplayName>NamespaceUri</DisplayName>
-    <Description>A URI that uniquely identifies the dictionary.</Description>
-    <References>
-      <Reference ReferenceType="HasTypeDefinition">i=68</Reference>
-      <Reference ReferenceType="HasProperty" IsForward="false">ns=1;i=10</Reference>
-    </References>
-    <Value>
-      <String xmlns="http://opcfoundation.org/UA/2008/02/Types.xsd">http://tpum.example.com</String>
-    </Value>
-  </UAVariable>
-  <UAVariable NodeId="ns=1;i=13" BrowseName="1:TPUM" SymbolicName="TPUM_BinarySchema" DataType="ByteString">
-    <DisplayName>TPUM</DisplayName>
-    <References>
-      <Reference ReferenceType="HasProperty">ns=1;i=15</Reference>
-      <Reference ReferenceType="HasComponent" IsForward="false">i=93</Reference>
-      <Reference ReferenceType="HasTypeDefinition">i=72</Reference>
-    </References>
-  </UAVariable>
-  <UAVariable NodeId="ns=1;i=15" BrowseName="NamespaceUri" ParentNodeId="ns=1;i=13" DataType="String">
-    <DisplayName>NamespaceUri</DisplayName>
-    <Description>A URI that uniquely identifies the dictionary.</Description>
-    <References>
-      <Reference ReferenceType="HasTypeDefinition">i=68</Reference>
-      <Reference ReferenceType="HasProperty" IsForward="false">ns=1;i=13</Reference>
-    </References>
-    <Value>
-      <String xmlns="http://opcfoundation.org/UA/2008/02/Types.xsd">http://tpum.example.com</String>
-    </Value>
   </UAVariable>
 </UANodeSet>
