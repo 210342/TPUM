@@ -35,12 +35,12 @@ namespace TPUM.Server.Data
 
         public static void AddBookInLoop(IDataContext dataContext)
         {
-            DataContext context = dataContext as DataContext;
-            Task.Run(() =>
+            Task.Run(async() =>
             {
+                DataContext context = dataContext as DataContext;
                 while (true)
                 {
-                    Thread.Sleep(5000);
+                    await Task.Delay(5000);
                     int id;
                     do
                     {

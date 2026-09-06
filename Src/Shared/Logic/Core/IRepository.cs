@@ -24,6 +24,7 @@ namespace TPUM.Shared.Logic.Core
         void UpdateBooks(List<IBook> books);
         void UpdateAuthors(List<IAuthor> authors);
 
+        Task StartObserving();
         bool StartBackgroundWorker();
     }
 }

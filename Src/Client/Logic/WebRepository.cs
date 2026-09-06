@@ -21,12 +21,16 @@ namespace TPUM.Client.Logic
             _socket = Data.Factory.CreateWebDataSource<ISocket>(uri, format, encoding);
             _httpClient = Data.Factory.CreateWebDataSource<IHttpClient>(uri, format, encoding);
             _socketSubscription = _socket.Subscribe(this);
-            _socket.Start();
+        }
+
+        public Task StartObserving()
+        {
+            return _socket.Start();
         }
 
         public async Task<IAuthor> AddRandomAuthor()
         {
-            try { 
+            try {
                 return Mapper.MapEntities<Shared.NetworkModel.Core.IAuthor, IAuthor>(
                     await _httpClient.AddRandomAuthorAsync()
                 );

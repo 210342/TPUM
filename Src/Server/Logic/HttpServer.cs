@@ -54,19 +54,12 @@ namespace TPUM.Server.Logic
             _httpListener.Prefixes.Add($"{uri}disconnect/");
         }
 
-        public override Task Start()
+        public override async Task Start()
         {
-            base.Start();
+            await base.Start();
             _httpListener.Start();
-            Task.Run(() => Start(_cancellationTokenSource.Token));
+            _ = Task.Run(() => ListenerLoop(_cancellationTokenSource.Token));
             _repository.StartBackgroundWorker();
-            return Task.CompletedTask;
-        }
-
-        private async Task Start(CancellationToken token)
-        {
-            _httpListener.Start();
-            await ListenerLoop(token).ConfigureAwait(false);
         }
 
         public override void Stop()
@@ -89,6 +82,8 @@ namespace TPUM.Server.Logic
         {
             while (_httpListener.IsListening && !token.IsCancellationRequested)
             {
+                try
+                {
                 HttpListenerContext context = await _httpListener.GetContextAsync().ConfigureAwait(false);
                 if (context.Request.IsWebSocketRequest)
                 {
@@ -97,14 +92,19 @@ namespace TPUM.Server.Logic
                     _webSocketSubscribers.Add(webSocket);
                     webSocket.Handle();
                 }
-                else if (!_httpHandlerFactory
+                else if (!await _httpHandlerFactory
                     .Invoke(context, _repository)
                     .Handle(
                         entity => CreateNetworkPacket(entity, BaseUri).Serialize(),
-                        entities => 
+                        entities =>
                         _entityListSerializer.Serialize(entities.Select(e => Mapper.MapWebModelToDataModelEntities(e)).ToArray())))
                 {
                     Stop();
+                }
+                }
+                catch (Exception e)
+                {
+                    System.Diagnostics.Trace.WriteLine(e.ToString());
                 }
             }
         }

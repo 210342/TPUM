@@ -15,7 +15,7 @@ namespace TPUM.Server.Logic
         private readonly object _booksLock = new object();
         private readonly object _authorsLock = new object();
 
-        private readonly IDisposable _dataContextSubscription;
+        private IDisposable _dataContextSubscription;
         private IDataContext _dataContext;
         private bool _isBackgroundWorkerRunning;
 
@@ -24,7 +24,7 @@ namespace TPUM.Server.Logic
         public Repository(IDataContext dataContext)
         {
             _dataContext = dataContext ?? throw new ArgumentNullException(nameof(dataContext));
-            _dataContextSubscription = _dataContext.Subscribe(this);
+            StartObserving();
         }
 
         #region Repository
@@ -209,6 +209,12 @@ namespace TPUM.Server.Logic
         public Task<Shared.Logic.WebModel.IAuthor> AddRandomAuthor()
         {
             return Task.FromResult(Factory.MapEntityToWebModel(ObjectCreation.AddAuthor(_dataContext)) as Shared.Logic.WebModel.IAuthor);
+        }
+
+        public Task StartObserving()
+        {
+            _dataContextSubscription = _dataContext.Subscribe(this);
+            return Task.CompletedTask;
         }
 
         public bool StartBackgroundWorker()
