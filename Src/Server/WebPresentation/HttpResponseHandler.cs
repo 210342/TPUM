@@ -20,34 +20,32 @@ namespace TPUM.Server.WebPresentation
             _repository = repository;
         }
 
-        public bool Handle(Func<IEntity, byte[]> serializer, Func<IEnumerable<IEntity>, byte[]> arraySerializer)
+        public async Task<bool> Handle(Func<IEntity, byte[]> serializer, Func<IEnumerable<IEntity>, byte[]> arraySerializer)
         {
             HttpListenerResponse response = _context.Response;
             response.StatusCode = 200;
             response.ContentType = "text/plain; charset=utf-8";
             if (_context.Request.RawUrl.ToLower().Contains("disconnect"))
             {
-                using (StreamWriter writer = new(response.OutputStream))
-                {
-                    writer.WriteLine("Closing the server");
-                    response.Close();
-                }
+                using StreamWriter writer = new(response.OutputStream);
+                writer.WriteLine("Closing the server");
+                response.Close();
                 return false;
             }
             else if (_context.Request.RawUrl.ToLower().Contains("books"))
             {
                 byte[] bytesToWrite = arraySerializer.Invoke(_repository.GetBooks());
-                response.OutputStream.Write(bytesToWrite, 0, bytesToWrite.Length);
+                await response.OutputStream.WriteAsync(bytesToWrite);
             }
             else if (_context.Request.RawUrl.ToLower().Contains("authors"))
             {
                 byte[] bytesToWrite = arraySerializer.Invoke(_repository.GetAuthors());
-                response.OutputStream.Write(bytesToWrite, 0, bytesToWrite.Length);
+                await response.OutputStream.WriteAsync(bytesToWrite);
             }
             else if (_context.Request.RawUrl.ToLower().Contains("add"))
             {
-                byte[] bytesToWrite = serializer.Invoke(_repository.AddRandomAuthor().GetAwaiter().GetResult());
-                response.OutputStream.Write(bytesToWrite, 0, bytesToWrite.Length);
+                byte[] bytesToWrite = serializer.Invoke(await _repository.AddRandomAuthor());
+                await response.OutputStream.WriteAsync(bytesToWrite);
             }
             response.Close();
             return true;

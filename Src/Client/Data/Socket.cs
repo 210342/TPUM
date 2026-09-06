@@ -12,6 +12,7 @@ namespace TPUM.Client.Data
     internal class Socket : Observable<IEntity>, ISocket
     {
         private const int BUFFER_SIZE = 1024;
+        private readonly SemaphoreSlim _semaphore = new SemaphoreSlim(1, 1);
         private readonly ClientWebSocket _webSocket;
         private CancellationTokenSource _cancellationTokenSource;
 
@@ -32,13 +33,23 @@ namespace TPUM.Client.Data
         {
             try
             {
+                await _semaphore.WaitAsync();
+                if (_webSocket.State == WebSocketState.Connecting
+                    || _webSocket.State == WebSocketState.Open)
+                {
+                    return;
+                }
                 _cancellationTokenSource = new CancellationTokenSource();
                 await _webSocket?.ConnectAsync(ServerUri, _cancellationTokenSource.Token);
-                await WebSocketLoop(_cancellationTokenSource.Token);
+                _ = Task.Run(() => WebSocketLoop(_cancellationTokenSource.Token));
             }
             catch (WebSocketException)
             {
                 return;
+            }
+            finally
+            {
+                _semaphore.Release();
             }
         }
 
@@ -101,6 +112,7 @@ namespace TPUM.Client.Data
                 if (disposing)
                 {
                     _webSocket?.Dispose();
+                    _semaphore.Dispose();
                 }
 
                 // TODO: free unmanaged resources (unmanaged objects) and override finalizer

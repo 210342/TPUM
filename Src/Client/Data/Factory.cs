@@ -16,10 +16,9 @@ namespace TPUM.Client.Data
             Type matchingType = typeof(Factory)
                 .Assembly
                 .GetTypes()
-                .Where(t => typeof(T).IsAssignableFrom(t)
+                .FirstOrDefault(t => typeof(T).IsAssignableFrom(t)
                     && !t.IsAbstract
-                    && !t.IsInterface)
-                .FirstOrDefault();
+                    && !t.IsInterface);
 
             return matchingType == null
                 ? default

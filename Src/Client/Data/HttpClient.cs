@@ -12,7 +12,7 @@ namespace TPUM.Client.Data
     internal class HttpClient : IHttpClient
     {
         private readonly ISerializer<IEntity[]> _entityListSerializer;
-        private readonly ISerializer<IEntity> _entitySerializer;
+        private readonly ISerializer<INetworkPacket> _packetSerializer;
         private readonly System.Net.Http.HttpClient _httpClient;
 
         public Uri ServerUri { get; }
@@ -22,7 +22,7 @@ namespace TPUM.Client.Data
             ServerUri = serverUri ?? throw new ArgumentNullException(nameof(serverUri));
             _httpClient = new System.Net.Http.HttpClient();
             _entityListSerializer = Shared.NetworkModel.Factory.CreateSerializer<IEntity[]>(format, encoding);
-            _entitySerializer = Shared.NetworkModel.Factory.CreateSerializer<IEntity>(format, encoding);
+            _packetSerializer = Shared.NetworkModel.Factory.CreateSerializer<INetworkPacket>(format, encoding);
         }
 
         public async Task<IEnumerable<IBook>> GetBooksAsync()
@@ -56,9 +56,13 @@ namespace TPUM.Client.Data
             try
             {
                 System.Net.Http.HttpResponseMessage response = await _httpClient.GetAsync($"{ServerUri}add");
-                return _entitySerializer.Deserialize(await response.Content.ReadAsByteArrayAsync()) as IAuthor;
+                return AbstractNetworkPacket.Deserialize(await response.Content.ReadAsByteArrayAsync(), _packetSerializer)?.Entity as IAuthor;
             }
             catch (SocketException)
+            {
+                return null;
+            }
+            catch (Exception e)
             {
                 return null;
             }

@@ -46,6 +46,7 @@ namespace TPUM.Client.ViewModel
             if (Uri.TryCreate(ServerAddress, UriKind.Absolute, out Uri uri))
             {
                 _repository = Logic.Factory.CreateRepository(uri, Format.JSON, Encoding.Default);
+                _repository.StartObserving();
                 Stock = new StockViewModel(_repository, dispatcher);
             }
         }

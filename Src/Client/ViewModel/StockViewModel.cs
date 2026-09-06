@@ -43,11 +43,12 @@ namespace TPUM.Client.ViewModel
 
         #region Commands
 
-        public Command AddAuthorCommand { get; private set; }
+        public AsyncCommand AddAuthorCommand { get; private set; }
+        public AsyncCommand StartListeningCommand { get; private set; }
 
         #endregion
 
-        public StockViewModel(IDispatcher dispatcher) 
+        public StockViewModel(IDispatcher dispatcher)
             : this(Logic.Factory.CreateRepository(new Uri("http://localhost:5000/"), Format.JSON, Encoding.UTF8), dispatcher) { }
 
         public StockViewModel(IRepository repository, IDispatcher dispatcher) : base(dispatcher)
@@ -56,10 +57,16 @@ namespace TPUM.Client.ViewModel
             _socketSubscription = _repository.Subscribe(this);
             Task.Run(() =>_repository.GetAuthors().ToList().ForEach(a => OnNext(a)));
             Task.Run(() => _repository.GetBooks().ToList().ForEach(b => OnNext(b)));
-            AddAuthorCommand = new Command(args => Task.Run(_repository.AddRandomAuthor));
+            AddAuthorCommand = new AsyncCommand(_ => _repository.AddRandomAuthor());
+            StartListeningCommand = new AsyncCommand(_ => StartObserving());
         }
 
         #region IObserver
+
+        public Task StartObserving()
+        {
+            return _repository.StartObserving();
+        }
 
         public void OnCompleted() { }
 

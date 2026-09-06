@@ -50,8 +50,12 @@
             <Grid.RowDefinitions>
                 <RowDefinition Height="1*" />
                 <RowDefinition Height="1*" />
+                <RowDefinition Height="4*" />
             </Grid.RowDefinitions>
             <Viewbox Grid.Column="0" >
+                <Button Command="{Binding StartListeningCommand}" Content="Start listening for changes" Padding="8,4,8,4"/>
+            </Viewbox>
+            <Viewbox Grid.Row="1" >
                 <Button Command="{Binding AddAuthorCommand}" Content="Add Author" Padding="8,4,8,4"/>
             </Viewbox>
         </Grid>

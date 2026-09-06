@@ -2,12 +2,11 @@
 using System;
 using System.Collections.Generic;
 using System.Text;
-using System.Threading;
+using System.Threading.Tasks;
 using TPUM.Client.ViewModel;
 using TPUM.Server.Logic;
 using TPUM.Server.WebPresentation;
 using TPUM.Shared.Logic.Core;
-using TPUM.Shared.Logic.WebModel;
 using Xunit;
 
 namespace TPUM.IntegrationTests
@@ -32,7 +31,7 @@ namespace TPUM.IntegrationTests
 
         [Theory]
         [MemberData(nameof(WebServiceParams))]
-        public void LogicToLogicTest(Format format, Encoding encoding)
+        public async Task LogicToLogicTest(Format format, Encoding encoding)
         {
             int port = 5000;
             Uri uri = new($"http://localhost:{port}");
@@ -44,12 +43,13 @@ namespace TPUM.IntegrationTests
                 format,
                 encoding
             );
-            server.Start();
+            await server.Start();
             using IRepository webRepository = Client.Logic.Factory.CreateRepository(uri, format, encoding);
             StockViewModel viewModel = new(webRepository, new TestDispatcherImplementation());
+            await viewModel.StartListeningCommand.ExecuteAsync(null);
             Assert.Empty(viewModel.Authors);
-            viewModel.AddAuthorCommand.Execute(null);
-            Thread.Sleep(11000);
+            await viewModel.AddAuthorCommand.ExecuteAsync(null);
+            await Task.Delay(11000);
             Assert.NotEmpty(viewModel.Authors);
             Assert.NotEmpty(viewModel.Books);
             server.Stop();

@@ -7,6 +7,6 @@ namespace TPUM.Server.Logic.Core
 {
     public interface IHttpResponseHandler
     {
-        bool Handle(Func<IEntity, byte[]> serializer, Func<IEnumerable<IEntity>, byte[]> arraySerializer);
+        Task<bool> Handle(Func<IEntity, byte[]> serializer, Func<IEnumerable<IEntity>, byte[]> arraySerializer);
     }
 }
